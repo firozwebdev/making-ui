@@ -3,6 +3,23 @@ $(document).ready(function () {
   let selectedColumnIndex = null;
   let tableName = "";
 
+  $("#columnName").on("input", function () {
+    if ($(this).val().trim() === "") {
+        $(this).addClass("is-invalid");
+    } else {
+        $(this).removeClass("is-invalid");
+    }
+  });
+
+    $("#dataType").change(function () {
+        if ($(this).val() === "") {
+            $(this).addClass("is-invalid");
+        } else {
+            $(this).removeClass("is-invalid");
+        }
+    });
+
+
   // Disable actions until the table name is set
   function disableActions() {
       $("#addColumnBtn, #columnName, #dataType, .additional-input").prop("disabled", true);  // Disable column-related actions
@@ -149,22 +166,44 @@ function checkTableName() {
       });
   }
 
-  // Save the data of the selected column
-  function saveColumnData() {
-      if (selectedColumnIndex === null) return;
-      const column = columns[selectedColumnIndex];
-      column.name = $("#columnName").val();
-      column.type = $("#dataType").val();
+  
+    // Save the data of the selected column with validation
+    function saveColumnData() {
+        if (selectedColumnIndex === null) return;
+        
+        const column = columns[selectedColumnIndex];
+        column.name = $("#columnName").val().trim();
+        column.type = $("#dataType").val();
 
-      $(".additional-input").each(function () {
-          const key = $(this).data("key");
-          if (key === "nullable") {
-              column[key] = $(this).prop("checked");
-          } else {
-              column[key] = $(this).val();
-          }
-      });
-  }
+        // Validate required fields
+        if (!column.name) {
+            showCustomAlert("Column name is required.");
+            $("#columnName").addClass("is-invalid"); // Highlight the field in red
+            return false;
+        } else {
+            $("#columnName").removeClass("is-invalid");
+        }
+
+        if (!column.type) {
+            showCustomAlert("Data type is required.");
+            $("#dataType").addClass("is-invalid");
+            return false;
+        } else {
+            $("#dataType").removeClass("is-invalid");
+        }
+
+        $(".additional-input").each(function () {
+            const key = $(this).data("key");
+            if (key === "nullable") {
+                column[key] = $(this).prop("checked");
+            } else {
+                column[key] = $(this).val();
+            }
+        });
+
+        return true; // Indicate successful save
+    }
+
 
     // Add a new column when the "Add Column" button is clicked
     $("#addColumnBtn").click(function () {
@@ -172,15 +211,20 @@ function checkTableName() {
             showCustomAlert("Please set the Table/Model name first.");
             return; 
         } 
-
-        saveColumnData();
+    
+        // Validate before adding a new column
+        if (selectedColumnIndex !== null && !saveColumnData()) {
+            return; // Stop if validation fails
+        }
+    
         columns.unshift({ name: "", type: "", options: "" }); // Add column at the beginning
         selectedColumnIndex = 0; // Select the new column
         updateSidebar();
         loadColumnDetails();
-
+    
         showToast(columns.length > 1 ? "Column saved successfully!" : "Input column details!");
     });
+    
 
 
   // Set the table/model name

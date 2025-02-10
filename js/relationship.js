@@ -3,6 +3,22 @@ $(document).ready(function () {
   let selectedRelationshipIndex = null;
   let tableName = "";
 
+
+  $("#relatedModel").on("input", function () {
+    if ($(this).val().trim() === "") {
+        $(this).addClass("is-invalid");
+    } else {
+        $(this).removeClass("is-invalid");
+    }
+  });
+
+    $("#relationshipType").change(function () {
+        if ($(this).val() === "") {
+            $(this).addClass("is-invalid");
+        } else {
+            $(this).removeClass("is-invalid");
+        }
+    });
   // Function to validate table name and columns
   function validateTableAndColumns() {
     tableName = $("#tableName").val().trim(); // Get updated table name
@@ -74,27 +90,63 @@ $(document).ready(function () {
 
   // Save Relationship Data
   function saveRelationshipData() {
-    if (selectedRelationshipIndex === null) return;
-    relationships[selectedRelationshipIndex].relatedModel = $("#relatedModel").val();
-    relationships[selectedRelationshipIndex].type = $("#relationshipType").val();
+    if (selectedRelationshipIndex === null) return false;
+
+    const relationship = relationships[selectedRelationshipIndex];
+    const relatedModel = $("#relatedModel").val().trim();
+    const relationshipType = $("#relationshipType").val();
+    let isValid = true;
+
+    // Validate Related Model
+    if (!relatedModel) {
+        showCustomAlert("Related model is required.");
+        $("#relatedModel").addClass("is-invalid");
+        isValid = false;
+    } else {
+        $("#relatedModel").removeClass("is-invalid");
+    }
+
+    // Validate Relationship Type
+    if (!relationshipType) {
+        showCustomAlert("Relationship type is required.");
+        $("#relationshipType").addClass("is-invalid");
+        isValid = false;
+    } else {
+        $("#relationshipType").removeClass("is-invalid");
+    }
+
+    // If validation fails, return false
+    if (!isValid) return false;
+
+    // Save relationship data if validation passes
+    relationship.relatedModel = relatedModel;
+    relationship.type = relationshipType;
     updateRelationshipSidebar();
-  }
+
+    return true; // Indicate successful save
+}
+
 
   // Add Relationship
   $("#addRelationshipBtn").click(function () {
-    if (!validateTableAndColumns()) return; // Only validate when adding relationships
-    saveRelationshipData();
+    if (!validateTableAndColumns()) {
+        showCustomAlert("Please set the Table/Model name first.");
+        return;
+    }
+
+    // Validate before adding a new relationship
+    if (selectedRelationshipIndex !== null && !saveRelationshipData()) {
+        return; // Stop if validation fails
+    }
+
+    // Add a new empty relationship at the beginning
     relationships.unshift({ relatedModel: "", type: "" });
-    selectedRelationshipIndex = 0;
+    selectedRelationshipIndex = 0; // Select the new relationship
     updateRelationshipSidebar();
     loadRelationshipData();
 
-    if (relationships.length > 1) {
-      showToast("Relationship saved successfully!");
-    } else {
-      showToast("Input relationship details!");
-    }
-  });
+    showToast(relationships.length > 1 ? "Relationship saved successfully!" : "Input relationship details!");
+});
 
   // Set Table/Model Name
   $("#setTableNameBtn").click(function () {
