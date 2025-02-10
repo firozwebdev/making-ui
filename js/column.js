@@ -295,4 +295,68 @@ function checkTableName() {
   $("#columnDetail").hide();
   disableActions();  // Disable actions until the table name is set
   updateSidebar(); // Initial sidebar update
+
+ 
+
+
+  // Generate Part
+
+  $('#generateBtn').click(function() {
+    console.log("Columns: ", columns);
+
+    // Reverse the columns order before processing
+    const output = `{
+        "${sanitizeInput(tableName)}": {
+            "columns": { 
+                ${Object.entries(columns).reverse().map(([columnIndex, columnData]) => {
+                    let columnDefinition = `"${columnData.name}": `;
+
+                    // Handle enum and options correctly
+                    if (columnData.type.startsWith('enum') || columnData.type.startsWith('options')) {
+                        const formattedOptions = columnData.options 
+                            ? `,[${mapValuesForEnumAndOptions(columnData.options).join(',')}]` 
+                            : '';
+                        columnDefinition += `"${columnData.type}${formattedOptions}`; 
+                    } else {
+                        if(columnData.type === 'decimal') {
+                            columnDefinition += `"${columnData.type}${columnData.precision ? `,${columnData.precision}` : ''}${columnData.scale ? `,${columnData.scale}` : ''}`;
+                        }else{
+                            columnDefinition += `"${columnData.type}${columnData.length ? `,${columnData.length}` : ''}`; 
+                        }
+                            
+                    }
+
+                    // Add precision and scale if they exist
+                   
+
+                    // Add nullable, default, and unique if they exist
+                    columnDefinition += `${columnData.nullable ? '|nullable' : ''}`;
+                    columnDefinition += `${columnData.default ? `|default:${columnData.default}` : ''}`;
+                    columnDefinition += `${columnData.unique ? '|unique' : ''}`;
+
+                    columnDefinition += `"`;
+
+                    return columnDefinition;
+                }).join(',\n            ')}
+            }
+        }
+    }`;
+
+    console.log("Output: ", output);
 });
+});
+
+// Function to sanitize input to prevent XSS
+function sanitizeInput(input) {
+    return DOMPurify.sanitize(input);
+}
+
+// Function to trim spaces from a string
+function trimSpace(value) {
+    return typeof value === "string" ? value.trim() : value;
+}
+
+// Function to safely process enum and options values
+function mapValuesForEnumAndOptions(input) {
+    return input.split(',').map(value => `${trimSpace(value)}`); // Wrap each value in quotes safely
+}
