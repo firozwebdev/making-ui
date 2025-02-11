@@ -1,5 +1,5 @@
 $(document).ready(function () {
-  window.relationships = [];
+  //window.relationships = [];
   let selectedRelationshipIndex = null;
   
 
@@ -137,13 +137,27 @@ $(document).ready(function () {
 
 
   // Add Relationship
-  $("#addRelationshipBtn").click(function () {
+  $("#addRelationshipBtn").click(function (e) {
     if (!validateTableAndColumns()) {
         showCustomAlert("Please set the Table/Model name first.");
         return;
     }
 
-    // Validate before adding a new relationship
+    let columns = window.columns;
+    
+    // Ensure columns exist and take the first column
+    let firstColumnKey = Object.keys(columns)[0];
+    let firstColumn = columns[firstColumnKey];
+
+    // Validate first column existence and properties
+    if (!firstColumn || !firstColumn.name?.trim() || firstColumn.name === "Untitled Column" || !firstColumn.type) {
+        showCustomAlert("Please complete column details first.");
+        return;
+    }
+
+   
+
+    // Validate and save the current relationship before adding a new one
     if (selectedRelationshipIndex !== null && !saveRelationshipData()) {
         return; // Stop if validation fails
     }
@@ -151,11 +165,17 @@ $(document).ready(function () {
     // Add a new empty relationship at the beginning
     relationships.unshift({ relatedModel: "", type: "" });
     selectedRelationshipIndex = 0; // Select the new relationship
+
     updateRelationshipSidebar();
     loadRelationshipData();
-
-    showToast(relationships.length > 1 ? "Relationship saved successfully!" : "Input relationship details!");
+    if(relationships.length <= 1){
+      showToast("Input relationship details!");
+    }else{
+      showToast("Relationship saved successfully!");
+    }
+    //showToast(relationships.length > 1 ? "Relationship saved successfully!" : "Input relationship details!");
 });
+
 
   // Set Table/Model Name
   $("#setTableNameBtn").click(function () {
@@ -223,9 +243,11 @@ $(document).ready(function () {
     // check column length if it is grater than 1, then enable the add relationship button
     if ($("#columnsList li").length > 1) {
       enableActionsForRelationships();
+      
     }else{
       disableActionsForRelationships();
     }
+   
 
   });
 

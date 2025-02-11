@@ -76,11 +76,11 @@
               <form class="columnForm">
                 <div class="mb-3 columnName">
                   <label for="columnName" class="form-label">Column Name</label>
-                  <input name="columns[][columnName]" type="text" class="form-control" id="columnName" />
+                  <input name="columns[][columnName]" type="text" class="form-control" id="columnName" required/>
                 </div>
                 <div class="mb-3 dataType">
                   <label for="dataType" class="form-label">Data Type</label>
-                  <select name="columns[][dataType]" class="form-select" id="dataType">
+                  <select name="columns[][dataType]" class="form-select" id="dataType" required>
                     <option value="">Select Data Type</option>
                     <option value="bigIncrements">Primary Key (INT)</option>
                     <option value="uuid">Primary Key (UUID)</option>

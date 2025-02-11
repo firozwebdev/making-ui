@@ -1,6 +1,6 @@
 $(document).ready(function () {
-    window.tableName = "";
-    window.columns = [];
+    // window.tableName = "";
+    // window.columns = [];
     let selectedColumnIndex = null;
     
     
@@ -220,12 +220,26 @@ $(document).ready(function () {
   
   
       // Add a new column when the "Add Column" button is clicked
-      $("#addColumnBtn").click(function () {
+      $("#addColumnBtn").click(function (e) {
           if (!checkTableName()) {
               showCustomAlert("Please set the Table/Model name first.");
               return; 
-          } 
-      
+          }
+          relationships = window.relationships;
+          //console.log(relationships);
+          // get first relationship  and check if it's relatedMOdel or type is empty
+          if(relationships.length > 0){
+            let firstRelationship = relationships[0];
+            let relatedModel = firstRelationship?.relatedModel || "";
+            let type = firstRelationship?.type || "";
+            if (relatedModel.trim() === "" || type.trim() === "") {
+                showCustomAlert("Please complete relationship details first.");
+                return;
+            }else{
+                console.log(e);
+                showToast("Relationship saved successfully!");
+            }
+          }
           // Validate before adding a new column
           if (selectedColumnIndex !== null && !saveColumnData()) {
               return; // Stop if validation fails
@@ -235,8 +249,12 @@ $(document).ready(function () {
           selectedColumnIndex = 0; // Select the new column
           updateSidebar();
           loadColumnDetails();
-      
-          showToast(columns.length > 1 ? "Column saved successfully!" : "Input column details!");
+          if(columns.length <= 1){
+            showToast("Input column details!");
+          }else{
+            showToast("Column saved successfully!");
+          }
+        //   showToast(columns.length < 1 ? "Input column details!" : "");
       });
       
   
