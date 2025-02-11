@@ -1,7 +1,7 @@
 $(document).ready(function () {
-  let relationships = [];
+  window.relationships = [];
   let selectedRelationshipIndex = null;
-  let tableName = "";
+  
 
 
   $("#relatedModel").on("input", function () {
@@ -93,9 +93,18 @@ $(document).ready(function () {
     if (selectedRelationshipIndex === null) return false;
 
     const relationship = relationships[selectedRelationshipIndex];
-    const relatedModel = $("#relatedModel").val().trim();
+    const relatedModel = $("#relatedModel").val().trim().toLowerCase();  // Convert to lowercase for comparison
     const relationshipType = $("#relationshipType").val();
     let isValid = true;
+
+    // Check if the related model already exists (case-insensitive) excluding the current relationship
+    if (relationships.some((rel, index) => rel.relatedModel.toLowerCase() === relatedModel && index !== selectedRelationshipIndex)) {
+        showCustomAlert("Related model name already exists. Please choose a unique model.");
+        $("#relatedModel").addClass("is-invalid"); // Highlight the field in red
+        isValid = false;
+    } else {
+        $("#relatedModel").removeClass("is-invalid");
+    }
 
     // Validate Related Model
     if (!relatedModel) {
@@ -124,7 +133,7 @@ $(document).ready(function () {
     updateRelationshipSidebar();
 
     return true; // Indicate successful save
-}
+  }
 
 
   // Add Relationship
@@ -238,8 +247,7 @@ $(document).ready(function () {
 
   // Table Name Input Change
   $("#tableName").on("input", toggleSetTableNameBtn);
-  $('#generateBtn').click(function() {
-    console.log("columns "+ columns);
-  });
+ 
+
   
 });
