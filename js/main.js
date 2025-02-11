@@ -4,7 +4,7 @@ $(document).ready(function () {
         tableName = window.tableName;
         columns = window.columns;
         relationships = window.relationships;
-        console.log(relationships);
+        
         if (!tableName) {
             showCustomAlert("Please set the Table/Model name first in the sidebar.");
             return;
@@ -76,31 +76,3 @@ $(document).ready(function () {
         console.log("Output: ", output);
     });
 });
-
-// Function to sanitize input to prevent XSS
-function sanitizeInput(input) {
-    return DOMPurify.sanitize(input);
-}
-
-// Function to trim spaces from a string
-function trimSpace(value) {
-    return typeof value === "string" ? value.trim() : value;
-}
-
-// Function to safely process enum and options values
-function mapValuesForEnumAndOptions(input) {
-    return input.split(',').map(value => `${trimSpace(value)}`); // Wrap each value in quotes safely
-}
-
-// Function to format column data based on its type
-function formatColumnData(columnData) {
-    let columnDefinition = `"${columnData.type}`;
-
-    if (columnData.type === 'decimal') {
-        columnDefinition += `${columnData.precision ? `,${columnData.precision}` : ''}${columnData.scale ? `,${columnData.scale}` : ''}`;
-    } else {
-        columnDefinition += `${columnData.length ? `,${columnData.length}` : ''}`;
-    }
-
-    return columnDefinition + `"`;
-}

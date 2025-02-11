@@ -171,32 +171,32 @@ $(document).ready(function () {
     
     // Save the data of the selected column with validation
     function saveColumnData() {
-        if (selectedColumnIndex === null) return;
-        
+        if (selectedColumnIndex === null) return false;
+    
         const column = columns[selectedColumnIndex];
-        const newColumnName = $("#columnName").val().trim().toLowerCase();  // Convert to lowercase for comparison
-
-        // Check if the column name already exists (case-insensitive) excluding the current column
-        if (columns.some((col, index) => col.name.toLowerCase() === newColumnName && index !== selectedColumnIndex)) {
-            showCustomAlert("Column name already exists. Please choose a unique name.");
-            $("#columnName").addClass("is-invalid"); // Highlight the field in red
-            return false; // Stop saving if the name is not unique
-        } else {
-            $("#columnName").removeClass("is-invalid");
-        }
-
-        column.name = newColumnName;
-        column.type = $("#dataType").val();
-
-        // Validate required fields
-        if (!column.name) {
-            showCustomAlert("Column name is required.");
-            $("#columnName").addClass("is-invalid"); // Highlight the field in red
+        let columnName = $("#columnName").val().trim();
+    
+        // Validate column name using the enhanced validation method
+        if (!isValidInput(columnName)) {
+            $("#columnName").addClass("is-invalid"); // Highlight field in red
             return false;
         } else {
             $("#columnName").removeClass("is-invalid");
         }
-
+    
+        const newColumnName = columnName.toLowerCase();  // Convert to lowercase for comparison
+    
+        // Check if the column name already exists (case-insensitive) excluding the current column
+        if (columns.some((col, index) => col.name.toLowerCase() === newColumnName && index !== selectedColumnIndex)) {
+            showCustomAlert("Column name already exists. Please choose a unique name.");
+            $("#columnName").addClass("is-invalid");
+            return false;
+        }
+    
+        column.name = newColumnName;
+        column.type = $("#dataType").val().trim();
+    
+        // Validate required fields
         if (!column.type) {
             showCustomAlert("Data type is required.");
             $("#dataType").addClass("is-invalid");
@@ -204,18 +204,16 @@ $(document).ready(function () {
         } else {
             $("#dataType").removeClass("is-invalid");
         }
-
+    
+        // Process additional input fields
         $(".additional-input").each(function () {
             const key = $(this).data("key");
-            if (key === "nullable") {
-                column[key] = $(this).prop("checked");
-            } else {
-                column[key] = $(this).val();
-            }
+            column[key] = key === "nullable" ? $(this).prop("checked") : $(this).val();
         });
-
+    
         return true; // Indicate successful save
     }
+    
 
   
   
