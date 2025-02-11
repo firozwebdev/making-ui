@@ -26,27 +26,27 @@ $(document).ready(function () {
 
     if (!tableName) {
       showCustomAlert("Please set the Table/Model name first in the sidebar.");
-      disableActions();
+      disableActionsForRelationships();
       return false;
     }
 
     if (columnCount < 2) {
       showCustomAlert("At least two columns are required.");
-      disableActions();
+      disableActionsForRelationships();
       return false;
     }
 
-    enableActions();
+    enableActionsForRelationships();
     return true;
   }
 
   // Disable actions until conditions are met
-  function disableActions() {
+  function disableActionsForRelationships() {
     $("#addRelationshipBtn, #relatedModel, #relationshipType,.remove-btn-column").prop("disabled", true);
   }
 
   // Enable actions once conditions are met
-  function enableActions() {
+  function enableActionsForRelationships() {
     $("#addRelationshipBtn, #relatedModel, #relationshipType,.remove-btn-column").prop("disabled", false);
   }
 
@@ -154,9 +154,9 @@ $(document).ready(function () {
     
     // if table name is set, and columns are greater than 1, enable the add relationship button
     if ($("#columnsList li").length > 1) {
-      enableActions();
+      enableActionsForRelationships();
     }else{
-      disableActions();
+      disableActionsForRelationships();
     }
   });
 
@@ -213,9 +213,9 @@ $(document).ready(function () {
   $("#addColumnBtn").click(function () {
     // check column length if it is grater than 1, then enable the add relationship button
     if ($("#columnsList li").length > 1) {
-      enableActions();
+      enableActionsForRelationships();
     }else{
-      disableActions();
+      disableActionsForRelationships();
     }
 
   });
@@ -224,18 +224,22 @@ $(document).ready(function () {
   $(document).on("click", ".remove-btn-column", function () {
     // check column length if it is grater than 1, then enable the add relationship button
     if ($("#columnsList li").length > 1) {
-      enableActions();
+      enableActionsForRelationships();
     }else{
-      disableActions();
+      disableActionsForRelationships();
     }
   });
 
   // Initial Setup
   $("#relationshipDetail").hide();
   toggleSetTableNameBtn();
-  disableActions();
+  disableActionsForRelationships();
   updateRelationshipSidebar();
 
   // Table Name Input Change
   $("#tableName").on("input", toggleSetTableNameBtn);
+  $('#generateBtn').click(function() {
+    console.log("columns "+ columns);
+  });
+  
 });
