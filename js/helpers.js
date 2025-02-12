@@ -61,27 +61,71 @@ function makeDefaultValueForEnumAndOptions(value) {
  
  }
 
- function checkDecimalDefaultValue(columnData) {
-    const defaultValue = columnData.default.toString();
+ function checkDecimalDefaultValue(value, precision, scale) {
+    if (!value) {
+        showCustomAlert("Default value is required.");
+        return false;
+    }
+
+    const defaultValue = value.toString().trim();
+
+    // Check if the default value is a valid decimal
+    const decimalPattern = /^-?\d+(\.\d+)?$/; // Pattern to match valid numbers (optional negative sign)
+    if (!decimalPattern.test(defaultValue)) {
+        showCustomAlert("Invalid decimal value.");
+        return false;
+    }
+
     const [integerPart, decimalPart] = defaultValue.split(".");
 
-    const precision = columnData.precision || 10; // Default precision
-    const scale = columnData.scale || 2; // Default scale
-
-    // Ensure total digits do not exceed precision
+    // Handle cases where there's no decimal part
     const totalDigits = integerPart.length + (decimalPart ? decimalPart.length : 0);
+
+    // If the total digits exceed precision, return an error
     if (totalDigits > precision) {
         showCustomAlert(`Default value exceeds the allowed precision (${precision} digits).`);
         return false;
     }
 
-    // Ensure decimal part does not exceed scale
+    // If there's a decimal part, ensure its length doesn't exceed scale
     if (decimalPart && decimalPart.length > scale) {
-        showCustomAlert(`Default value exceeds the allowed scale (${scale} decimal places).`);
+        showCustomAlert(`Decimal part exceeds the allowed scale (${scale} decimal places).`);
+        return false;
+    }
+
+    // If there's no decimal part, and the integer part exceeds precision, return an error
+    if (!decimalPart && integerPart.length > precision) {
+        showCustomAlert(`Integer part exceeds the allowed precision (${precision} digits).`);
         return false;
     }
 
     return true;
 }
 
+function checkDefaultValue(type, defaultValue, length, precision, scale) {
+    if (!defaultValue) {
+        showCustomAlert("Default value is required.");
+        return false;
+    }
 
+    // Validate based on the column type
+    if (type === 'decimal') {
+        if (!checkDecimalDefaultValue(defaultValue, precision, scale)) {
+            return false;
+        }
+        return true;
+    }
+
+    // Validate for string type
+    if (type === 'string') {
+        if (defaultValue.length > length) {
+            showCustomAlert(`Default value exceeds the allowed length (${length} characters).`);
+            return false;
+        }
+        return true;
+    }
+
+    // If the type is unsupported, show a custom alert
+    showCustomAlert("Unsupported column type.");
+    return false;
+}

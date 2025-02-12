@@ -131,16 +131,26 @@ $(document).ready(function () {
             `;
         }
     
-        // Add  input box to Default Value for all data types except excluded ones
+        // Add input box to Default Value for all data types except excluded ones
         if (!["enum", "options", "image", "bigIncrements", "uuid", "foreignId"].includes(dataType)) {
-            let inputType = dataType === "date" ? "date" : "text"; // Use date picker for date type
+            let inputType = "text"; // Default to text input
+
+            if (dataType === "date") {
+                inputType = "date"; // Use date picker for date type
+            } else if (["integer", "decimal"].includes(dataType)) {
+                inputType = "number"; // Use number input for integer and decimal
+            }
+
             additionalHTML += `
                 <div class="mb-3">
                     <label for="defaultValue" class="form-label">Default Value</label>
-                    <input type="${inputType}" class="form-control additional-input default-value" data-key="default" value="${column.default || ''}">
+                    <input type="${inputType}" class="form-control additional-input default-value" 
+                        data-key="default" value="${column.default || ''}" 
+                        ${dataType === "decimal" ? 'step="0.01"' : 'step="1"'}>
                 </div>
             `;
         }
+
 
     
         // Add nullable and unique checkboxes for all types except excluded ones
@@ -205,7 +215,9 @@ $(document).ready(function () {
   
     
     function saveColumnData() {
-        if (selectedColumnIndex === null) return false;
+        if (selectedColumnIndex === null || selectedColumnIndex < 0 || selectedColumnIndex >= columns.length) {
+            return false; // Ensure index is valid
+        }
     
         const column = columns[selectedColumnIndex];
         let columnName = $("#columnName").val().trim();
@@ -213,6 +225,7 @@ $(document).ready(function () {
         // Validate column name
         if (!isValidInput(columnName)) {
             $("#columnName").addClass("is-invalid"); 
+            showCustomAlert("Invalid column name.");
             return false;
         } else {
             $("#columnName").removeClass("is-invalid");
@@ -221,7 +234,7 @@ $(document).ready(function () {
         const newColumnName = columnName.toLowerCase(); 
     
         // Check if column name already exists (case-insensitive)
-        if (columns.some((col, index) => col.name.toLowerCase() === newColumnName && index !== selectedColumnIndex)) {
+        if (columns.some((col, index) => index !== selectedColumnIndex && col.name.toLowerCase() === newColumnName)) {
             showCustomAlert("Column name already exists. Please choose a unique name.");
             $("#columnName").addClass("is-invalid");
             return false;
@@ -239,20 +252,20 @@ $(document).ready(function () {
             $("#dataType").removeClass("is-invalid");
         }
     
-        // Process additional input fields
+        // Process additional input fields dynamically
         $(".additional-input").each(function () {
             const key = $(this).data("key");
     
             if ($(this).is(":checkbox")) {
-                // Ensure checkboxes store true/false
-                column[key] = $(this).prop("checked");
+                column[key] = $(this).prop("checked"); // Store as true/false
             } else {
-                column[key] = $(this).val();
+                column[key] = $(this).val().trim();
             }
         });
     
         return true; 
     }
+    
     
 
   
@@ -264,7 +277,34 @@ $(document).ready(function () {
               return; 
           }
           relationships = window.relationships;
-          //console.log(relationships);
+          columns = window.columns;
+         
+         // Check if columns array has any data
+         if (columns.length > 0) {
+            let lastColumn = columns[columns.length - 1];
+            console.log(columns);
+            // Extract column details
+            let type = lastColumn?.type || ""; // Ensure type is string (default empty string if undefined)
+            let defaultValue = lastColumn?.default || ""; // Ensure default value is string (default empty string)
+            let length = lastColumn?.length || ""; // Length (default to empty if undefined)
+            let precision = lastColumn?.precision || ""; // Precision (default to empty if undefined)
+            let scale = lastColumn?.scale || ""; // Scale (default to empty if undefined)
+        
+            // Ensure that required values (type and defaultValue) are not empty before calling the check function
+            if (!type || !defaultValue) {
+                showCustomAlert("Column type and default value must be set.");
+                return; // Stop further execution if essential values are missing
+            }
+        
+            // Only check the default value if a valid column exists and is properly initialized
+            if (!checkDefaultValue(type, defaultValue, length, precision, scale)) {
+                showCustomAlert("Please fix the default value.");
+                return; // Exit early if validation fails
+            }
+        }
+        
+        
+            
           // get first relationship  and check if it's relatedMOdel or type is empty
           if(relationships.length > 0){
             let firstRelationship = relationships[0];
@@ -296,6 +336,8 @@ $(document).ready(function () {
       });
       
   
+    
+    
   
     // Set the table/model name
     $("#setTableNameBtn").click(function () {
@@ -309,39 +351,51 @@ $(document).ready(function () {
         showToast("Table Name Set Successfully!.");
     }); //default-value
 
-    // $(".default-value").on("input", function () {
-    //     const defaultValue = $(this).val();
-    //     const dataType = $("#dataType").val(); // Get data type dynamically
+    $(document).on("input", ".default-value", function () {
+        const defaultValue = $(this).val()?.toString().trim() || ""; // Ensure it's a string
+        const dataType = $("#dataType").val(); // Get data type dynamically
+        let errorMessage = "";
     
-    //     if (dataType === "decimal") {
-    //         const precision = parseInt($("[data-key='precision']").val()) || 10;
-    //         const scale = parseInt($("[data-key='scale']").val()) || 2;
+        if (dataType === "decimal") {
+            const precision = parseInt($("[data-key='precision']").val()) || 10;
+            const scale = parseInt($("[data-key='scale']").val()) || 2;
     
-    //         if (!checkDecimalDefaultValue(defaultValue, precision, scale)) {
-    //             $(this).addClass("is-invalid");
-    //         } else {
-    //             $(this).removeClass("is-invalid");
-    //         }
-    //     } else if (dataType === "string") {
-    //         const maxLength = parseInt($("[data-key='length']").val()) || 255;
+            // Ensure valid number format
+            const numericValue = parseFloat(defaultValue);
+            
+            if (isNaN(numericValue) || !checkDecimalDefaultValue(numericValue.toString(), precision, scale)) {
+                $(this).addClass("is-invalid");
+                errorMessage = `Invalid Decimal: Maximum precision is ${precision}, and scale is ${scale}.`;
+            } else {
+                $(this).removeClass("is-invalid");
+            }
+        } else if (dataType === "string") {
+            const maxLength = parseInt($("[data-key='length']").val()) || 255;
     
-    //         if (defaultValue.length > maxLength) {
-    //             $(this).addClass("is-invalid");
-    //         } else {
-    //             $(this).removeClass("is-invalid");
-    //         }
-    //     } else {
-    //         $(this).removeClass("is-invalid"); // Reset for other types
-    //     }
+            if (defaultValue.length > maxLength) {
+                $(this).addClass("is-invalid");
+                errorMessage = `Invalid String: Maximum length allowed is ${maxLength} characters.`;
+            } else {
+                $(this).removeClass("is-invalid");
+            }
+        } else {
+            $(this).removeClass("is-invalid"); // Reset for other types
+        }
     
-    //     // Handle Nullable Checkbox
-    //     const nullableCheckbox = $(".nullable-checkbox");
-    //     if (defaultValue.trim() !== "") {
-    //         nullableCheckbox.prop("disabled", true).prop("checked", false);
-    //     } else {
-    //         nullableCheckbox.prop("disabled", false);
-    //     }
-    // });
+        // Show alert if there is an error
+        if (errorMessage !== "") {
+            showCustomAlert(errorMessage);
+        }
+    
+        // Handle Nullable Checkbox
+        const nullableCheckbox = $(".nullable-checkbox");
+        if (defaultValue !== "") {
+            nullableCheckbox.prop("disabled", true).prop("checked", false);
+        } else {
+            nullableCheckbox.prop("disabled", false);
+        }
+    });
+    
     
   
     // Handle the column name input changes
