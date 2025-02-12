@@ -281,8 +281,9 @@ $(document).ready(function () {
          
          // Check if columns array has any data
          if (columns.length > 0) {
-            let lastColumn = columns[columns.length - 1];
+            let lastColumn = columns[0]; // Always take the recent column as using unshift() when saving column
             console.log(columns);
+            console.log(lastColumn);
             // Extract column details
             let type = lastColumn?.type || ""; // Ensure type is string (default empty string if undefined)
             let defaultValue = lastColumn?.default || ""; // Ensure default value is string (default empty string)
@@ -324,7 +325,7 @@ $(document).ready(function () {
           }
       
           columns.unshift({ name: "", type: "", options: "" }); // Add column at the beginning
-          selectedColumnIndex = 0; // Select the new column
+          selectedColumnIndex = columns.length - 1 // Select the new column
           updateSidebar();
           loadColumnDetails();
           if(columns.length <= 1){
