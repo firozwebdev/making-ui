@@ -90,63 +90,99 @@ $(document).ready(function () {
   
         showAdditionalFields(column.type, column);
     }
-  
-    // Function to show additional fields based on the data type selected
     function showAdditionalFields(dataType, column = {}) {
         let additionalHTML = "";
-  
-        switch (dataType) {
-            case "string":
-                additionalHTML = `
-                    <div class="mb-3">
-                        <label for="length" class="form-label">Length</label>
-                        <input type="number" class="form-control additional-input" data-key="length" value="${column.length || ""}">
-                    </div>
-                `;
-                break;
-            case "decimal":
-                additionalHTML = `
-                    <div class="mb-3">
-                        <label for="precision" class="form-label">Precision</label>
-                        <input type="number" class="form-control additional-input" data-key="precision" value="${column.precision || ""}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="scale" class="form-label">Scale</label>
-                        <input type="number" class="form-control additional-input" data-key="scale" value="${column.scale || ""}">
-                    </div>
-                `;
-                break;
-            case "enum":
-            case "options":
-                additionalHTML = `
-                    <div class="mb-3">
-                        <label for="optionsList" class="form-label">Options (comma separated)</label>
-                        <input type="text" class="form-control additional-input" data-key="options" value="${column.options || "Option1,Option2"}">
-                    </div>
-                    <div class="mb-3">
-                        <label for="defaultValue" class="form-label">Default Value</label>
-                        <select class="form-control additional-input" data-key="default">
-                            ${generateOptionsDropdown(column.options || "Option1,Option2", column.default)}
-                        </select>
-                    </div>
-                `;
-                break;
-            default:
-                break;
-        }
-  
-        // Add Nullable Checkbox
-        if (dataType !== 'bigIncrements' && dataType !== 'uuid' && dataType !== 'foreignId' && dataType !== 'enum' && dataType !== 'options') {
+    
+        // Ensure unique is always true/false
+        let isUnique = !!(column.unique && column.unique !== "off");
+    
+        console.log("Column Data Before Rendering:", column);
+        console.log(`Data Type: ${dataType}, Nullable: ${column.nullable}, Unique: ${isUnique}`);
+    
+        // Add additional fields based on the data type
+        if (dataType === "string") {
             additionalHTML += `
-                <div class="mb-3 form-check">
-                    <input type="checkbox" class="form-check-input additional-input" id="nullable" data-key="nullable" ${column.nullable ? "checked" : ""}>
-                    <label class="form-check-label" for="nullable">Nullable</label>
+                <div class="mb-3">
+                    <label for="length" class="form-label">Length</label>
+                    <input type="number" class="form-control additional-input" data-key="length" value="${column.length || ""}">
+                </div>
+            `;
+        } else if (dataType === "decimal") {
+            additionalHTML += `
+                <div class="mb-3">
+                    <label for="precision" class="form-label">Precision</label>
+                    <input type="number" class="form-control additional-input" data-key="precision" value="${column.precision || ""}">
+                </div>
+                <div class="mb-3">
+                    <label for="scale" class="form-label">Scale</label>
+                    <input type="number" class="form-control additional-input" data-key="scale" value="${column.scale || ""}">
+                </div>
+            `;
+        } else if (["enum", "options"].includes(dataType)) {
+            const optionsValue = column.options || "Option1,Option2";
+            additionalHTML += `
+                <div class="mb-3">
+                    <label for="optionsList" class="form-label">Options (comma separated)</label>
+                    <input type="text" class="form-control additional-input" data-key="options" value="${optionsValue}">
+                </div>
+                <div class="mb-3">
+                    <label for="defaultValue" class="form-label">Default Value</label>
+                    <select class="form-control additional-input" data-key="default">
+                        ${generateOptionsDropdown(optionsValue, column.default)}
+                    </select>
                 </div>
             `;
         }
-  
+    
+        // Add default value input box for all data types except excluded ones
+        if (!["enum", "options", "image", "primaryKey", "foreignKey"].includes(dataType)) {
+            additionalHTML += `
+                <div class="mb-3">
+                    <label for="defaultValue" class="form-label">Default Value</label>
+                    <input type="text" class="form-control additional-input" data-key="default" value="${column.default || ''}">
+                </div>
+            `;
+        }
+    
+        // Add nullable and unique checkboxes for all types except excluded ones
+        if (!["bigIncrements", "uuid", "foreignId", "image", "enum", "options"].includes(dataType)) {
+            additionalHTML += `
+                <div class="mb-3 d-flex align-items-center gap-3">
+                    <!-- Nullable checkbox -->
+                    <div class="form-check" ${column.default ? 'style="pointer-events:none;"' : ""}>
+                        <input type="checkbox" class="form-check-input additional-input" id="nullable-${column.name}" data-key="nullable" ${column.nullable ? "checked" : ""} ${column.default ? "disabled" : ""}>
+                        <label class="form-check-label" for="nullable-${column.name}">Nullable</label>
+                    </div>
+                    
+                    <!-- Unique checkbox -->
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input additional-input" id="unique-${column.name}" data-key="unique" ${isUnique ? "checked" : ""}>
+                        <label class="form-check-label" for="unique-${column.name}">Unique</label>
+                    </div>
+                </div>
+            `;
+        }
+
+    
+        // Render the HTML for additional fields
         $("#additionalFields").html(additionalHTML);
+    
+        // Handle interaction between Default Value and Nullable Checkbox
+        $("input[data-key='default']").on("input", function() {
+            const defaultValue = $(this).val();
+            const nullableCheckbox = $(`#nullable-${column.name}`);
+    
+            if (defaultValue.trim() !== "") {
+                nullableCheckbox.prop("disabled", true); // Disable nullable checkbox
+                nullableCheckbox.prop("checked", false); // Uncheck nullable if default value is provided
+            } else {
+                nullableCheckbox.prop("disabled", false); // Enable nullable checkbox
+            }
+        });
     }
+    
+    
+
   
     // Generate dropdown options from comma separated values
     function generateOptionsDropdown(optionsStr, defaultValue) {
@@ -169,24 +205,23 @@ $(document).ready(function () {
     }
   
     
-    // Save the data of the selected column with validation
     function saveColumnData() {
         if (selectedColumnIndex === null) return false;
     
         const column = columns[selectedColumnIndex];
         let columnName = $("#columnName").val().trim();
     
-        // Validate column name using the enhanced validation method
+        // Validate column name
         if (!isValidInput(columnName)) {
-            $("#columnName").addClass("is-invalid"); // Highlight field in red
+            $("#columnName").addClass("is-invalid"); 
             return false;
         } else {
             $("#columnName").removeClass("is-invalid");
         }
     
-        const newColumnName = columnName.toLowerCase();  // Convert to lowercase for comparison
+        const newColumnName = columnName.toLowerCase(); 
     
-        // Check if the column name already exists (case-insensitive) excluding the current column
+        // Check if column name already exists (case-insensitive)
         if (columns.some((col, index) => col.name.toLowerCase() === newColumnName && index !== selectedColumnIndex)) {
             showCustomAlert("Column name already exists. Please choose a unique name.");
             $("#columnName").addClass("is-invalid");
@@ -208,10 +243,17 @@ $(document).ready(function () {
         // Process additional input fields
         $(".additional-input").each(function () {
             const key = $(this).data("key");
-            column[key] = key === "nullable" ? $(this).prop("checked") : $(this).val();
+    
+            if ($(this).is(":checkbox")) {
+                // Ensure checkboxes store true/false
+                column[key] = $(this).prop("checked");
+            } else {
+                column[key] = $(this).val();
+            }
         });
     
-        return true; // Indicate successful save
+        console.log("Column Data Saved:", column); // Debug log
+        return true; 
     }
     
 
