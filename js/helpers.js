@@ -125,6 +125,8 @@ function checkDefaultValue(type, defaultValue, length, precision, scale) {
         return true;
     }
 
+   
+
     // If the type is unsupported, show a custom alert
     showCustomAlert("Unsupported column type.");
     return false;

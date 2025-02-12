@@ -144,6 +144,29 @@ $(document).ready(function () {
     }
 
     let columns = window.columns;
+
+    if (columns.length > 0) {
+      let lastColumn = columns[0]; // Always take the recent column as using unshift() when saving column
+      
+      // Extract column details
+      let type = lastColumn?.type || ""; // Ensure type is string (default empty string if undefined)
+      let defaultValue = lastColumn?.default || ""; // Ensure default value is string (default empty string)
+      let length = lastColumn?.length || ""; // Length (default to empty if undefined)
+      let precision = lastColumn?.precision || ""; // Precision (default to empty if undefined)
+      let scale = lastColumn?.scale || ""; // Scale (default to empty if undefined)
+  
+      // Ensure that required values (type and defaultValue) are not empty before calling the check function
+      if (!type || !defaultValue) {
+          showCustomAlert("Column type and default value must be set.");
+          return; // Stop further execution if essential values are missing
+      }
+  
+      // Only check the default value if a valid column exists and is properly initialized
+      if (!checkDefaultValue(type, defaultValue, length, precision, scale)) {
+          showCustomAlert("Please fix the default value.");
+          return; // Exit early if validation fails
+      }
+    }
     
     // Ensure columns exist and take the first column
     let firstColumnKey = Object.keys(columns)[0];
