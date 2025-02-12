@@ -55,4 +55,33 @@ function formatColumnData(columnData) {
 
     return columnDefinition + `"`;
 }
+function makeDefaultValueForEnumAndOptions(value) {
+    // input may be like active,inactive, output will be just active
+     return value.split(',')[0];
+ 
+ }
+
+ function checkDecimalDefaultValue(columnData) {
+    const defaultValue = columnData.default.toString();
+    const [integerPart, decimalPart] = defaultValue.split(".");
+
+    const precision = columnData.precision || 10; // Default precision
+    const scale = columnData.scale || 2; // Default scale
+
+    // Ensure total digits do not exceed precision
+    const totalDigits = integerPart.length + (decimalPart ? decimalPart.length : 0);
+    if (totalDigits > precision) {
+        showCustomAlert(`Default value exceeds the allowed precision (${precision} digits).`);
+        return false;
+    }
+
+    // Ensure decimal part does not exceed scale
+    if (decimalPart && decimalPart.length > scale) {
+        showCustomAlert(`Default value exceeds the allowed scale (${scale} decimal places).`);
+        return false;
+    }
+
+    return true;
+}
+
 

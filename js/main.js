@@ -43,14 +43,23 @@ $(document).ready(function () {
                                 
                         }
 
-                        // Add precision and scale if they exist
+                       
                     
 
                         // Add nullable, default, and unique if they exist
                         columnDefinition += `${columnData.nullable ? '|nullable' : ''}`;
 
+                        // add default 
                         if(columnData.type.startsWith('enum') || columnData.type.startsWith('options')) {
-                            columnDefinition += `${columnData.default ? `|default:${columnData.default}` : '|default:Option1'}`; 
+                           if(columnData.options){
+                                columnDefinition += columnData.default 
+                                ? `|default:${columnData.default}` 
+                                : (columnData.options ? `|default:${makeDefaultValueForEnumAndOptions(columnData.options)}` : '');
+                            
+                            }else{
+                                columnDefinition += `${columnData.default ? `|default:${columnData.default}` : '|default:Option1'}`; 
+                            }
+                            
                         }else{
                             columnDefinition += `${columnData.default ? `|default:${columnData.default}` : ''}`; 
                         }
@@ -76,3 +85,5 @@ $(document).ready(function () {
         console.log("Output: ", output);
     });
 });
+
+

@@ -96,9 +96,6 @@ $(document).ready(function () {
         // Ensure unique is always true/false
         let isUnique = !!(column.unique && column.unique !== "off");
     
-        console.log("Column Data Before Rendering:", column);
-        console.log(`Data Type: ${dataType}, Nullable: ${column.nullable}, Unique: ${isUnique}`);
-    
         // Add additional fields based on the data type
         if (dataType === "string") {
             additionalHTML += `
@@ -134,15 +131,17 @@ $(document).ready(function () {
             `;
         }
     
-        // Add default value input box for all data types except excluded ones
-        if (!["enum", "options", "image", "primaryKey", "foreignKey"].includes(dataType)) {
+        // Add  input box to Default Value for all data types except excluded ones
+        if (!["enum", "options", "image", "bigIncrements", "uuid", "foreignId"].includes(dataType)) {
+            let inputType = dataType === "date" ? "date" : "text"; // Use date picker for date type
             additionalHTML += `
                 <div class="mb-3">
                     <label for="defaultValue" class="form-label">Default Value</label>
-                    <input type="text" class="form-control additional-input" data-key="default" value="${column.default || ''}">
+                    <input type="${inputType}" class="form-control additional-input default-value" data-key="default" value="${column.default || ''}">
                 </div>
             `;
         }
+
     
         // Add nullable and unique checkboxes for all types except excluded ones
         if (!["bigIncrements", "uuid", "foreignId", "image", "enum", "options"].includes(dataType)) {
@@ -252,7 +251,6 @@ $(document).ready(function () {
             }
         });
     
-        console.log("Column Data Saved:", column); // Debug log
         return true; 
     }
     
@@ -309,7 +307,42 @@ $(document).ready(function () {
         $("h5 span.tableModelName").text(tableName);
         enableActions();  // Enable actions once the table name is set
         showToast("Table Name Set Successfully!.");
-    });
+    }); //default-value
+
+    // $(".default-value").on("input", function () {
+    //     const defaultValue = $(this).val();
+    //     const dataType = $("#dataType").val(); // Get data type dynamically
+    
+    //     if (dataType === "decimal") {
+    //         const precision = parseInt($("[data-key='precision']").val()) || 10;
+    //         const scale = parseInt($("[data-key='scale']").val()) || 2;
+    
+    //         if (!checkDecimalDefaultValue(defaultValue, precision, scale)) {
+    //             $(this).addClass("is-invalid");
+    //         } else {
+    //             $(this).removeClass("is-invalid");
+    //         }
+    //     } else if (dataType === "string") {
+    //         const maxLength = parseInt($("[data-key='length']").val()) || 255;
+    
+    //         if (defaultValue.length > maxLength) {
+    //             $(this).addClass("is-invalid");
+    //         } else {
+    //             $(this).removeClass("is-invalid");
+    //         }
+    //     } else {
+    //         $(this).removeClass("is-invalid"); // Reset for other types
+    //     }
+    
+    //     // Handle Nullable Checkbox
+    //     const nullableCheckbox = $(".nullable-checkbox");
+    //     if (defaultValue.trim() !== "") {
+    //         nullableCheckbox.prop("disabled", true).prop("checked", false);
+    //     } else {
+    //         nullableCheckbox.prop("disabled", false);
+    //     }
+    // });
+    
   
     // Handle the column name input changes
     $("#columnName").on("input", function () {
