@@ -250,7 +250,7 @@ $(document).ready(function () {
         column.type = $("#dataType").val().trim();
     
         // Validate input type
-        if(!isValidInput(column.type)) return false;
+        //if(!isValidInput(column.type)) return false;
 
         if (!column.type) {
             showCustomAlert("Data type is required.");
@@ -293,7 +293,12 @@ $(document).ready(function () {
                 //showCustomAlert("Please fix  default value!");
                 return;
             }
-        }
+            if (!isValidInput(columns)) {
+                return;
+            }
+        }       
+        
+        
 
       
           // get first relationship  and check if it's relatedMOdel or type is empty

@@ -20,6 +20,9 @@ $(document).ready(function () {
             if (!isDefaultValueConsistentOrNotInColumn(columns)) {
                 return;
             }
+            if (!isValidInput(columns)) {
+                return;
+            }
         }
        
 

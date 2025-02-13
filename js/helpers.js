@@ -1,8 +1,8 @@
 function isValidInput(columns) {
-    // if (!Array.isArray(columns) || columns.length === 0) {
-    //     showCustomAlert("Invalid column data!");
-    //     return false;
-    // }
+    if (!Array.isArray(columns) || columns.length === 0) {
+        showCustomAlert("Invalid column data!");
+        return false;
+    }
 
     // Always take the first column for validation
     const column = columns[0];
@@ -25,6 +25,7 @@ function isValidInput(columns) {
 
     // **1️⃣ Column Name Validation (Prevents SQL Injection & XSS)**
     column.name = sanitizeInput(column.name);
+    
     if (!column.name || column.name.length < 2) {
         showCustomAlert("Column name must be at least 2 characters long!");
         return false;
@@ -38,9 +39,12 @@ function isValidInput(columns) {
         return false;
     }
     if (sqlInjectionPattern.test(column.name)) {
-        showCustomAlert("Possible SQL injection detected! Invalid column name.");
+        showCustomAlert("Possible SQL injection detected! Invalid column name!");
         return false;
     }
+
+   
+
 
     // **2️⃣ Data Type Validation (Sanitized)**
     column.type = sanitizeInput(column.type);
@@ -64,27 +68,52 @@ function isValidInput(columns) {
     if (column.default !== undefined) {
         column.default = sanitizeInput(column.default);
         if (["integer", "bigInteger", "smallInteger"].includes(column.type)) {
-            if (!/^-?\d+$/.test(column.default)) {
-                showCustomAlert("Invalid Default Value! Must be an integer.");
-                return false;
+            // if default value is present then check if it is an integer
+            if(column.default) {
+                if (!/^-?\d+$/.test(column.default)) {
+                    showCustomAlert("Invalid Default Value! Must be an integer!");
+                    return false;
+                }
             }
+           
         }
         if (["decimal", "float", "double"].includes(column.type)) {
-            if (!/^-?\d+(\.\d+)?$/.test(column.default)) {
-                showCustomAlert("Invalid Default Value! Must be a valid decimal number.");
-                return false;
+            if(column.default) {
+                if (!/^-?\d+(\.\d+)?$/.test(column.default)) {
+                    showCustomAlert("Invalid Default Value! Must be a valid decimal number!");
+                    return false;
+                } 
             }
+            
         }
         if (column.type === "string") {
             const maxLength = parseInt(column.length) || 255;
-            if (column.default.length > maxLength) {
-                showCustomAlert(`Invalid Default Value! Maximum length allowed is ${maxLength} characters.`);
-                return false;
+            if(column.default) {
+                if (column.default.length > maxLength) {
+                    showCustomAlert(`Invalid Default Value! Maximum length allowed is ${maxLength} characters!`);
+                    return false;
+                }
+                if (column.default.length < 2) {
+                    showCustomAlert(`"${column.default} must be at least 2 characters long!"`);
+                    return false;
+                }
+                if (reservedKeywords.includes(column.default.toLowerCase())) {
+                    showCustomAlert(`"${column.default}" is a reserved keyword and cannot be used as a column name!`);
+                    return false;
+                }
+                if (unsafePattern.test(column.default)) {
+                    showCustomAlert(`"Invalid ${column.default}! Only letters, numbers, and underscores are allowed!"`);
+                    return false;
+                }
+                if (sqlInjectionPattern.test(column.default)) {
+                    showCustomAlert(`"Possible SQL injection detected! Invalid ${column.default}!"`);
+                    return false;
+                }
             }
         }
         if (column.type === "email") {
             if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(column.default)) {
-                showCustomAlert("Invalid Default Value! Must be a valid email format.");
+                showCustomAlert("Invalid Default Value! Must be a valid email format!");
                 return false;
             }
         }
@@ -94,7 +123,7 @@ function isValidInput(columns) {
     if (column.nullable !== undefined) {
         column.nullable = sanitizeInput(column.nullable);
         if (typeof column.nullable !== "boolean") {
-            showCustomAlert("Invalid Nullable Value! Must be true or false.");
+            showCustomAlert("Invalid Nullable Value! Must be true or false!");
             return false;
         }
     }
@@ -102,7 +131,7 @@ function isValidInput(columns) {
     if (column.unique !== undefined) {
         column.unique = sanitizeInput(column.unique);
         if (typeof column.unique !== "boolean") {
-            showCustomAlert("Invalid Unique Value! Must be true or false.");
+            showCustomAlert("Invalid Unique Value! Must be true or false!");
             return false;
         }
     }
