@@ -6,15 +6,23 @@ $(document).ready(function () {
         relationships = window.relationships;
         
         if (!tableName) {
-            showCustomAlert("Please set the Table/Model name first in the sidebar.");
+            showCustomAlert("Please set the Table/Model name first in the sidebar!");
             return;
         }
         // check column count if it is less than 2, then show the error message
         if (columns.length < 2) {
-            showCustomAlert("At least two columns are required.");
+            showCustomAlert("At least two columns are required!");
             return;
         }
-        console.log("Columns: ", columns);
+
+        // checking  default value's consistency
+        if (columns.length > 0) {
+            if (!isDefaultValueConsistentOrNotInColumn(columns)) {
+                showCustomAlert("Please fix  default value!");
+                return;
+            }
+        }
+       
 
         // Reverse the columns order before processing
         const output = `{

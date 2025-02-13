@@ -25,13 +25,13 @@ $(document).ready(function () {
     let columnCount = $("#columnsList li").length; // Count existing columns
 
     if (!tableName) {
-      showCustomAlert("Please set the Table/Model name first in the sidebar.");
+      showCustomAlert("Please set the Table/Model name first in the sidebar!");
       disableActionsForRelationships();
       return false;
     }
 
     if (columnCount < 2) {
-      showCustomAlert("At least two columns are required.");
+      showCustomAlert("At least two columns are required!");
       disableActionsForRelationships();
       return false;
     }
@@ -53,7 +53,7 @@ $(document).ready(function () {
   // Update Relationship Sidebar
   function updateRelationshipSidebar() {
     if (!tableName) {
-      showCustomAlert("Please set the Table/Model name first in the sidebar.");
+      showCustomAlert("Please set the Table/Model name first in the sidebar!");
       return;
     }
 
@@ -99,7 +99,7 @@ $(document).ready(function () {
 
     // Check if the related model already exists (case-insensitive) excluding the current relationship
     if (relationships.some((rel, index) => rel.relatedModel.toLowerCase() === relatedModel && index !== selectedRelationshipIndex)) {
-        showCustomAlert("Related model name already exists. Please choose a unique model.");
+        showCustomAlert("Related model name already exists. Please choose a unique model!");
         $("#relatedModel").addClass("is-invalid"); // Highlight the field in red
         isValid = false;
     } else {
@@ -108,7 +108,7 @@ $(document).ready(function () {
 
     // Validate Related Model
     if (!relatedModel) {
-        showCustomAlert("Related model is required.");
+        showCustomAlert("Related model is required!");
         $("#relatedModel").addClass("is-invalid");
         isValid = false;
     } else {
@@ -117,7 +117,7 @@ $(document).ready(function () {
 
     // Validate Relationship Type
     if (!relationshipType) {
-        showCustomAlert("Relationship type is required.");
+        showCustomAlert("Relationship type is required!");
         $("#relationshipType").addClass("is-invalid");
         isValid = false;
     } else {
@@ -139,32 +139,16 @@ $(document).ready(function () {
   // Add Relationship
   $("#addRelationshipBtn").click(function (e) {
     if (!validateTableAndColumns()) {
-        showCustomAlert("Please set the Table/Model name first.");
+        showCustomAlert("Please set the Table/Model name first!");
         return;
     }
 
     let columns = window.columns;
 
     if (columns.length > 0) {
-      let lastColumn = columns[0]; // Always take the recent column as using unshift() when saving column
-      
-      // Extract column details
-      let type = lastColumn?.type || ""; // Ensure type is string (default empty string if undefined)
-      let defaultValue = lastColumn?.default || ""; // Ensure default value is string (default empty string)
-      let length = lastColumn?.length || ""; // Length (default to empty if undefined)
-      let precision = lastColumn?.precision || ""; // Precision (default to empty if undefined)
-      let scale = lastColumn?.scale || ""; // Scale (default to empty if undefined)
-  
-      // Ensure that required values (type and defaultValue) are not empty before calling the check function
-      if (!type || !defaultValue) {
-          showCustomAlert("Column type and default value must be set.");
-          return; // Stop further execution if essential values are missing
-      }
-  
-      // Only check the default value if a valid column exists and is properly initialized
-      if (!checkDefaultValue(type, defaultValue, length, precision, scale)) {
-          showCustomAlert("Please fix the default value.");
-          return; // Exit early if validation fails
+      if (!isDefaultValueConsistentOrNotInColumn(columns)) {
+          showCustomAlert("Please fix  default value!");
+          return;
       }
     }
     
@@ -174,7 +158,7 @@ $(document).ready(function () {
 
     // Validate first column existence and properties
     if (!firstColumn || !firstColumn.name?.trim() || firstColumn.name === "Untitled Column" || !firstColumn.type) {
-        showCustomAlert("Please complete column details first.");
+        showCustomAlert("Please complete column details first!");
         return;
     }
 

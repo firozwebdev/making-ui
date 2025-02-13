@@ -225,7 +225,7 @@ $(document).ready(function () {
         // Validate column name
         if (!isValidInput(columnName)) {
             $("#columnName").addClass("is-invalid"); 
-            showCustomAlert("Invalid column name.");
+            showCustomAlert("Invalid column name in new Column details !");
             return false;
         } else {
             $("#columnName").removeClass("is-invalid");
@@ -273,36 +273,20 @@ $(document).ready(function () {
       // Add a new column when the "Add Column" button is clicked
       $("#addColumnBtn").click(function (e) {
           if (!checkTableName()) {
-              showCustomAlert("Please set the Table/Model name first.");
+              showCustomAlert("Please set the Table/Model name first!");
               return; 
           }
           relationships = window.relationships;
           columns = window.columns;
          
-         // Check if columns array has any data
-         if (columns.length > 0) {
-            let lastColumn = columns[0]; // Always take the recent column as using unshift() when saving column
-            
-            // Extract column details
-            let type = lastColumn?.type || ""; // Ensure type is string (default empty string if undefined)
-            let defaultValue = lastColumn?.default || ""; // Ensure default value is string (default empty string)
-            let length = lastColumn?.length || ""; // Length (default to empty if undefined)
-            let precision = lastColumn?.precision || ""; // Precision (default to empty if undefined)
-            let scale = lastColumn?.scale || ""; // Scale (default to empty if undefined)
-        
-            // Ensure that required values (type and defaultValue) are not empty before calling the check function
-            if (!type || !defaultValue) {
-                showCustomAlert("Column type and default value must be set.");
-                return; // Stop further execution if essential values are missing
-            }
-        
-            // Only check the default value if a valid column exists and is properly initialized
-            if (!checkDefaultValue(type, defaultValue, length, precision, scale)) {
-                showCustomAlert("Please fix the default value.");
-                return; // Exit early if validation fails
+        console.log(columns);
+        if (columns.length > 0) {
+            if (!isDefaultValueConsistentOrNotInColumn(columns)) {
+                showCustomAlert("Please fix  default value!");
+                return;
             }
         }
-        
+       
         
             
           // get first relationship  and check if it's relatedMOdel or type is empty
@@ -311,7 +295,7 @@ $(document).ready(function () {
             let relatedModel = firstRelationship?.relatedModel || "";
             let type = firstRelationship?.type || "";
             if (relatedModel.trim() === "" || type.trim() === "") {
-                showCustomAlert("Please complete relationship details first.");
+                showCustomAlert("Please complete relationship details first!");
                 return;
             }else{
                 console.log(e);
@@ -343,7 +327,7 @@ $(document).ready(function () {
     $("#setTableNameBtn").click(function () {
         tableName = $("#tableName").val();
         if (!tableName) {
-            showCustomAlert("Please set the Table/Model name first in the sidebar.");
+            showCustomAlert("Please set the Table/Model name first in the sidebar!");
             return;
         }
         $("h5 span.tableModelName").text(tableName);
@@ -365,7 +349,7 @@ $(document).ready(function () {
             
             if (isNaN(numericValue) || !checkDecimalDefaultValue(numericValue.toString(), precision, scale)) {
                 $(this).addClass("is-invalid");
-                errorMessage = `Invalid Decimal: Maximum precision is ${precision}, and scale is ${scale}.`;
+                errorMessage = `Invalid Decimal: Maximum precision is ${precision}, and scale is ${scale}!`;
             } else {
                 $(this).removeClass("is-invalid");
             }
@@ -374,7 +358,7 @@ $(document).ready(function () {
     
             if (defaultValue.length > maxLength) {
                 $(this).addClass("is-invalid");
-                errorMessage = `Invalid String: Maximum length allowed is ${maxLength} characters.`;
+                errorMessage = `Invalid String: Maximum length allowed is ${maxLength} characters!`;
             } else {
                 $(this).removeClass("is-invalid");
             }
