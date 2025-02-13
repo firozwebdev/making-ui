@@ -147,7 +147,7 @@ $(document).ready(function () {
 
     if (columns.length > 0) {
       if (!isDefaultValueConsistentOrNotInColumn(columns)) {
-          showCustomAlert("Please fix  default value!");
+          //showCustomAlert("Please fix  default value!");
           return;
       }
     }

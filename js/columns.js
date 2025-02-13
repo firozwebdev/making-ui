@@ -285,7 +285,7 @@ $(document).ready(function () {
           relationships = window.relationships;
           columns = window.columns;
          
-        console.log(columns.length);
+        
         if (columns.length > 0) {
             if (!isDefaultValueConsistentOrNotInColumn(columns)) {
                 //showCustomAlert("Please fix  default value!");
@@ -342,7 +342,7 @@ $(document).ready(function () {
     }); //default-value
 
     $(document).on("input", ".default-value", function () {
-        const defaultValue = $(this).val()?.toString().trim() || ""; // Ensure it's a string
+        const defaultValue = $(this).val()?.toString().trim(); // Ensure it's treated as a string
         const dataType = $("#dataType").val(); // Get data type dynamically
         let errorMessage = "";
     
@@ -352,16 +352,21 @@ $(document).ready(function () {
     
             // Ensure valid number format
             const numericValue = parseFloat(defaultValue);
-            
             if (isNaN(numericValue) || !checkDecimalDefaultValue(numericValue.toString(), precision, scale)) {
                 $(this).addClass("is-invalid");
                 errorMessage = `Invalid Decimal: Maximum precision is ${precision}, and scale is ${scale}!`;
             } else {
                 $(this).removeClass("is-invalid");
             }
+        } else if (dataType === "integer") {
+            if (!/^-?\d+$/.test(defaultValue)) { // Check if it's a valid integer
+                $(this).addClass("is-invalid");
+                errorMessage = `Invalid Integer: Only whole numbers are allowed!`;
+            } else {
+                $(this).removeClass("is-invalid");
+            }
         } else if (dataType === "string") {
             const maxLength = parseInt($("[data-key='length']").val()) || 255;
-    
             if (defaultValue.length > maxLength) {
                 $(this).addClass("is-invalid");
                 errorMessage = `Invalid String: Maximum length allowed is ${maxLength} characters!`;
@@ -377,9 +382,9 @@ $(document).ready(function () {
             showCustomAlert(errorMessage);
         }
     
-        // Handle Nullable Checkbox
+        // ✅ Ensure Nullable Checkbox is Disabled for Integer & Other Data Types
         const nullableCheckbox = $(".nullable-checkbox");
-        if (defaultValue !== "") {
+        if (defaultValue !== "" && defaultValue !== null) {
             nullableCheckbox.prop("disabled", true).prop("checked", false);
         } else {
             nullableCheckbox.prop("disabled", false);
