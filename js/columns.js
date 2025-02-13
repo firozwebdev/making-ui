@@ -229,13 +229,13 @@ $(document).ready(function () {
         let columnName = $("#columnName").val().trim();
     
         // Validate column name
-        if (!isValidInput(columnName)) {
-            $("#columnName").addClass("is-invalid"); 
-            showCustomAlert("Invalid column name in new Column details !");
-            return false;
-        } else {
-            $("#columnName").removeClass("is-invalid");
-        }
+        // if (!isValidInput(columnName)) {
+        //     $("#columnName").addClass("is-invalid"); 
+        //     showCustomAlert("Invalid column name in new Column details !");
+        //     return false;
+        // } else {
+        //     $("#columnName").removeClass("is-invalid");
+        // }
     
         const newColumnName = columnName.toLowerCase(); 
     
@@ -249,7 +249,9 @@ $(document).ready(function () {
         column.name = newColumnName;
         column.type = $("#dataType").val().trim();
     
-        // Validate required fields
+        // Validate input type
+        if(!isValidInput(column.type)) return false;
+
         if (!column.type) {
             showCustomAlert("Data type is required.");
             $("#dataType").addClass("is-invalid");
@@ -268,7 +270,7 @@ $(document).ready(function () {
                 column[key] = $(this).val().trim();
             }
         });
-    
+        
         return true; 
     }
     
@@ -292,9 +294,8 @@ $(document).ready(function () {
                 return;
             }
         }
-       
-        
-            
+
+      
           // get first relationship  and check if it's relatedMOdel or type is empty
           if(relationships.length > 0){
             let firstRelationship = relationships[0];
