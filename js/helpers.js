@@ -67,35 +67,29 @@ function makeDefaultValueForEnumAndOptions(value) {
         return false;
     }
 
-    const defaultValue = value.toString().trim();
+    if (precision === undefined || scale === undefined) {
+        showCustomAlert("Precision and Scale are required for decimal type!");
+        return false;
+    }
 
-    // Check if the default value is a valid decimal
-    const decimalPattern = /^-?\d+(\.\d+)?$/; // Pattern to match valid numbers (optional negative sign)
+    const defaultValue = value.toString().trim();
+    const decimalPattern = /^-?\d+(\.\d+)?$/; // Supports negative values and decimals
+
     if (!decimalPattern.test(defaultValue)) {
         showCustomAlert("Invalid decimal value!");
         return false;
     }
 
-    const [integerPart, decimalPart] = defaultValue.split(".");
+    const [integerPart, decimalPart = ""] = defaultValue.split(".");
+    const totalDigits = integerPart.length + decimalPart.length;
 
-    // Handle cases where there's no decimal part
-    const totalDigits = integerPart.length + (decimalPart ? decimalPart.length : 0);
-
-    // If the total digits exceed precision, return an error
     if (totalDigits > precision) {
         showCustomAlert(`Default value exceeds the allowed precision (${precision} digits)!`);
         return false;
     }
 
-    // If there's a decimal part, ensure its length doesn't exceed scale
-    if (decimalPart && decimalPart.length > scale) {
+    if (decimalPart.length > scale) {
         showCustomAlert(`Decimal part exceeds the allowed scale (${scale} decimal places)!`);
-        return false;
-    }
-
-    // If there's no decimal part, and the integer part exceeds precision, return an error
-    if (!decimalPart && integerPart.length > precision) {
-        showCustomAlert(`Integer part exceeds the allowed precision (${precision} digits)!`);
         return false;
     }
 
@@ -103,100 +97,63 @@ function makeDefaultValueForEnumAndOptions(value) {
 }
 
 function checkDefaultValue(type, defaultValue, length, precision, scale) {
-    // If defaultValue is empty, allow it without validation
     if (defaultValue === undefined || defaultValue === null || defaultValue === '') {
         return true; // Allow empty default values
     }
 
-    // Validate only for supported types: string, decimal, integer, and email
-    if (type === 'decimal') {
-        if (!checkDecimalDefaultValue(defaultValue, precision, scale)) {
-            return false;
-        }
-        return true;
-    }
-   
-    // Validate for string type (only check if length is defined)
-    if (type === 'string' && length) {
-        if (typeof defaultValue === 'string' && defaultValue.length > length) {
-            showCustomAlert(`Default value exceeds the allowed length (${length} characters)!`);
-            return false;
-        }
-        return true;
-    }
+    switch (type) {
+        case 'decimal':
+            return checkDecimalDefaultValue(defaultValue, precision, scale);
 
-    // Validate for integer type (max length: 5 digits)
-    if (type === 'integer') {
-        if (!/^\d+$/.test(defaultValue)) {
-            showCustomAlert("Default value must be a valid integer!");
-            return false;
-        }
-        if (defaultValue.toString().length > 5) { // Ensure it is treated as a string for length check
-            showCustomAlert("Integer default value cannot exceed 5 digits!");
-            return false;
-        }
-        return true;
-    }
+        case 'string':
+            if (length && typeof defaultValue === 'string' && defaultValue.length > length) {
+                showCustomAlert(`Default value exceeds the allowed length (${length} characters)!`);
+                return false;
+            }
+            return true;
 
-    // Validate for email type
-    if (type === 'email') {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(defaultValue)) {
-            $(".default-value").addClass("is-invalid"); 
-            showCustomAlert("Default value must be a valid email address!");
-            return false;
-        }
-        return true;
-    }
+        case 'integer':
+            if (!/^\d+$/.test(defaultValue)) {
+                showCustomAlert("Default value must be a valid integer!");
+                return false;
+            }
+            if (defaultValue.toString().length > 5) {
+                showCustomAlert("Integer default value cannot exceed 5 digits!");
+                return false;
+            }
+            return true;
 
-    // For other types, return true to avoid blocking them
-    return true;
+        case 'email':
+            if (typeof defaultValue !== 'string') {
+                showCustomAlert("Default email value must be a string!");
+                return false;
+            }
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(defaultValue.trim())) {
+                $(".default-value").addClass("is-invalid");
+                showCustomAlert("Default value must be a valid email address!");
+                return false;
+            }
+            return true;
+
+        default:
+            return true; // Allow other types without validation
+    }
 }
-
 
 function isDefaultValueConsistentOrNotInColumn(columns) {
-    // Ensure the columns array is not empty
     if (columns.length === 0) return false;
 
-    // Always take the most recent column (first item since unshift() is used)
-    let lastColumn = columns[0];
+    const { type = "", default: defaultValue, length = "", precision, scale } = columns[0];
 
-    // Extract column details with proper defaults
-    let type = lastColumn?.type?.trim() || ""; // Trim to avoid leading/trailing spaces
-    let defaultValue = lastColumn?.default; // Allow falsy values like 0 but reject null/undefined
-    let length = lastColumn?.length || "";
-    let precision = lastColumn?.precision || "";
-    let scale = lastColumn?.scale || "";
+    const excludedTypes = ['bigIncrements', 'uuid', 'foreignId', 'date', 'text', 'enum', 'options', 'image'];
+    if (!type || excludedTypes.includes(type)) return true;
 
-    // Skip validation for "enum" and "options" column types
-    if (type === 'bigIncrements' || 
-        type === 'uuid' || 
-        type === 'foreignId' || 
-        type === 'date' || 
-        type === "enum" || 
-        type === "options" || 
-        type === "image" ) return true;
-
-    
-
-    // Ensure type is provided
-    if (!type) {
-        showCustomAlert("Column type must be set!");
+    if (type === 'decimal' && (precision === undefined || scale === undefined)) {
+        showCustomAlert("Precision and Scale are required for decimal columns!");
         return false;
     }
 
-    // Ensure defaultValue is properly set (allow falsy values like 0 but reject null/undefined)
-    if (defaultValue === undefined || defaultValue === null) {
-        showCustomAlert("Column default value must be set!");
-        return false;
-    }
-
-    // Validate default value
-    if (!checkDefaultValue(type, defaultValue, length, precision, scale)) {
-       // showCustomAlert("Please fix the default value!");
-        return false;
-    }
-
-    // If all validations pass, return true
-    return true;
+    return checkDefaultValue(type.trim(), defaultValue, length, precision, scale);
 }
+

@@ -154,23 +154,28 @@ $(document).ready(function () {
 
     
         // Add nullable and unique checkboxes for all types except excluded ones
-        if (!["bigIncrements", "uuid", "foreignId", "image", "enum", "options"].includes(dataType)) {
+        if (!["bigIncrements", "uuid", "foreignId", "enum", "options"].includes(dataType)) {
+            additionalHTML += `<div class="mb-3 d-flex align-items-center gap-3">`;
+
+            // Add Nullable Checkbox (applies to all types)
             additionalHTML += `
-                <div class="mb-3 d-flex align-items-center gap-3">
-                    <!-- Nullable checkbox -->
-                    <div class="form-check" ${column.default ? 'style="pointer-events:none;"' : ""}>
-                        <input type="checkbox" class="form-check-input additional-input" id="nullable-${column.name}" data-key="nullable" ${column.nullable ? "checked" : ""} ${column.default ? "disabled" : ""}>
-                        <label class="form-check-label" for="nullable-${column.name}">Nullable</label>
-                    </div>
-                    
-                    <!-- Unique checkbox -->
+                <div class="form-check" ${column.default ? 'style="pointer-events:none;"' : ""}>
+                    <input type="checkbox" class="form-check-input additional-input" id="nullable-${column.name}" data-key="nullable" ${column.nullable ? "checked" : ""} ${column.default ? "disabled" : ""}>
+                    <label class="form-check-label" for="nullable-${column.name}">Nullable</label>
+                </div>`;
+
+            // Add Unique Checkbox (skip if type is "image")
+            if (dataType !== "image") {
+                additionalHTML += `
                     <div class="form-check">
                         <input type="checkbox" class="form-check-input additional-input" id="unique-${column.name}" data-key="unique" ${isUnique ? "checked" : ""}>
                         <label class="form-check-label" for="unique-${column.name}">Unique</label>
-                    </div>
-                </div>
-            `;
+                    </div>`;
+            }
+
+            additionalHTML += `</div>`; // Close the div wrapper
         }
+
 
     
         // Render the HTML for additional fields
@@ -180,14 +185,15 @@ $(document).ready(function () {
         $("input[data-key='default']").on("input", function() {
             const defaultValue = $(this).val();
             const nullableCheckbox = $(`#nullable-${column.name}`);
-    
-            if (defaultValue.trim() !== "") {
+
+            if (String(defaultValue).trim() !== "") {  // Convert value to string before trimming
                 nullableCheckbox.prop("disabled", true); // Disable nullable checkbox
                 nullableCheckbox.prop("checked", false); // Uncheck nullable if default value is provided
             } else {
                 nullableCheckbox.prop("disabled", false); // Enable nullable checkbox
             }
         });
+
     }
     
     

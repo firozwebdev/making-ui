@@ -18,7 +18,6 @@ $(document).ready(function () {
         // checking  default value's consistency
         if (columns.length > 0) {
             if (!isDefaultValueConsistentOrNotInColumn(columns)) {
-                showCustomAlert("Please fix  default value!");
                 return;
             }
         }
