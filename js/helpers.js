@@ -103,32 +103,27 @@ function makeDefaultValueForEnumAndOptions(value) {
 }
 
 function checkDefaultValue(type, defaultValue, length, precision, scale) {
-    if (!defaultValue) {
-        showCustomAlert("Default value is required!");
-        return false;
+    // If defaultValue is empty, allow it without validation
+    if (defaultValue === undefined || defaultValue === null || defaultValue === '') {
+        return true; // Allow empty default values
     }
 
-    // Validate only for supported types: string and decimal
+    // Validate only for supported types: string, decimal, integer, and email
     if (type === 'decimal') {
         if (!checkDecimalDefaultValue(defaultValue, precision, scale)) {
             return false;
         }
         return true;
     }
-    console.log("hello from here");
-    // Validate for integer
-    if (type === 'string') {
-        console.log('Length:', length);
-        console.log('Default Value:', defaultValue);
-    
-        if (length && typeof defaultValue === 'string' && defaultValue.length > length) {
+   
+    // Validate for string type (only check if length is defined)
+    if (type === 'string' && length) {
+        if (typeof defaultValue === 'string' && defaultValue.length > length) {
             showCustomAlert(`Default value exceeds the allowed length (${length} characters)!`);
             return false;
         }
         return true;
     }
-    
-    
 
     // Validate for integer type (max length: 5 digits)
     if (type === 'integer') {
@@ -136,7 +131,7 @@ function checkDefaultValue(type, defaultValue, length, precision, scale) {
             showCustomAlert("Default value must be a valid integer!");
             return false;
         }
-        if (defaultValue.length > 5) {
+        if (defaultValue.toString().length > 5) { // Ensure it is treated as a string for length check
             showCustomAlert("Integer default value cannot exceed 5 digits!");
             return false;
         }
@@ -147,6 +142,7 @@ function checkDefaultValue(type, defaultValue, length, precision, scale) {
     if (type === 'email') {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(defaultValue)) {
+            $(".default-value").addClass("is-invalid"); 
             showCustomAlert("Default value must be a valid email address!");
             return false;
         }
@@ -156,6 +152,7 @@ function checkDefaultValue(type, defaultValue, length, precision, scale) {
     // For other types, return true to avoid blocking them
     return true;
 }
+
 
 function isDefaultValueConsistentOrNotInColumn(columns) {
     // Ensure the columns array is not empty

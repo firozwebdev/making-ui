@@ -279,10 +279,10 @@ $(document).ready(function () {
           relationships = window.relationships;
           columns = window.columns;
          
-        console.log(columns);
+        console.log(columns.length);
         if (columns.length > 0) {
             if (!isDefaultValueConsistentOrNotInColumn(columns)) {
-                showCustomAlert("Please fix  default value!");
+                //showCustomAlert("Please fix  default value!");
                 return;
             }
         }
