@@ -6,7 +6,7 @@ function isValidInput(columns) {
 
     // Always take the first column for validation
     const column = columns[0];
-    console.log(column);
+    
 
     // Reserved keywords & unsafe patterns (for column names)
     const reservedKeywords = ["select", "insert", "update", "delete", "drop", "alter", "create", "truncate", "script"];

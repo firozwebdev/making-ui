@@ -50,28 +50,27 @@ $(document).ready(function () {
   
     // Function to update the sidebar
     function updateSidebar() {
-        if (!checkTableName()) return;  // Only proceed if the table name is set
         $("#columnsList").empty();
+    
+        if (columns.length === 0) {
+            $("#columnDetail").hide(); // Hide details if no columns
+            return;
+        }
+    
         columns.forEach((col, index) => {
             $("#columnsList").append(`
                 <li class="list-group-item-column ${selectedColumnIndex === index ? "active" : ""}" data-index="${index}">
                     ${col.name || "Untitled Column"}
-                    <button class="remove-btn-column btn btn-danger btn-sm float-end" data-index="${index}">
+                    <button class="remove-btn-column btn btn-danger btn-sm float-end">
                         <i class="bi bi-x-circle"></i>
                     </button>
                 </li>
             `);
         });
-  
-        // Reattach event listeners after updating the list
-        $(".list-group-item-column").off("click").on("click", function () {
-            saveColumnData();
-            $(".list-group-item-column").removeClass("active");
-            $(".list-group-item-relationship").removeClass("active");
-            $(this).addClass("active");
-            selectedColumnIndex = $(this).data("index");
-            loadColumnDetails();
-        });
+    
+        setTimeout(() => {
+            $(`li.list-group-item-column[data-index="${selectedColumnIndex}"]`).addClass("active");
+        }, 10);
     }
   
     // Function to load column details in the right panel
@@ -275,10 +274,7 @@ $(document).ready(function () {
     }
     
     
-
-  
-  
-      // Add a new column when the "Add Column" button is clicked
+     // Add a new column when the "Add Column" button is clicked
       $("#addColumnBtn").click(function (e) {
           if (!checkTableName()) {
               showCustomAlert("Please set the Table/Model name first!");
@@ -432,24 +428,24 @@ $(document).ready(function () {
     });
   
     // Remove the selected column
-    $(document).on("click", "#columnsList .remove-btn-column", function () {
+    $(document).on("click", ".remove-btn-column", function (event) {
+        event.stopPropagation();
         const columnIndex = $(this).closest(".list-group-item-column").data("index");
-  
+    
         if (columnIndex !== undefined) {
             columns.splice(columnIndex, 1);
             selectedColumnIndex = columns.length > 0 ? 0 : null;
-  
-            updateSidebar(); // Update the sidebar to fix indexes
-  
-            if (columns.length > 0) {
-                loadColumnDetails();
-            } else {
-                $("#columnDetail").hide();
-            }
-  
-            showToast("Column removed successfully!");  // Show toast message when column is removed
+            updateSidebar();
+            columns.length > 0 ? loadColumnDetails() : $("#columnDetail").hide();
+    
+            showToast("Column removed successfully!");
         }
     });
+    
+    
+    
+
+
   
     // Initially hide the column detail panel
     $("#columnDetail").hide();
