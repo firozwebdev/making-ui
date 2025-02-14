@@ -20,7 +20,7 @@ function isValidTableName(tableName, customPattern = null) {
         "var", "void", "volatile", "while", "with", "yield"
     ];
 
-    const unsafePattern = /[^a-zA-Z_ ]/g; // Allows only letters (a-z, A-Z) and spaces
+    const unsafePattern = /[^a-zA-Z ]/g; // Allows only letters (a-z, A-Z) and spaces
     const sqlInjectionPattern = /(union|select|insert|update|delete|drop|alter|create|truncate|exec|execute|--|;)/gi;
     const scriptTagPattern = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
     const modelPattern =  /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/;
@@ -48,7 +48,7 @@ function isValidTableName(tableName, customPattern = null) {
         return false;
     }
     if (unsafePattern.test(tableName)) {
-        showCustomAlert("Invalid table name! Only these characters (a-z, A-Z, _, space) are allowed!");
+        showCustomAlert("Invalid table name! Only these characters (a-z, A-Z, space) are allowed!");
         return false;
     }
     if (sqlInjectionPattern.test(tableName)) {
@@ -103,6 +103,9 @@ function isValidInput(columns) {
 
     const sqlInjectionPattern = /(union|select|insert|update|delete|drop|alter|create|truncate|exec|execute|--|;)/gi;
     const scriptTagPattern = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
+    // Pattern for lowercase words with optional underscores
+    const columnPattern = /^[a-z0-9]+(_[a-z0-9]+)*$/;
+
 
     function sanitizeInput(value) {
         if (typeof value === "string") {
@@ -130,6 +133,13 @@ function isValidInput(columns) {
     }
     if (sqlInjectionPattern.test(column.name)) {
         showCustomAlert("Possible SQL injection detected! Invalid column name!");
+        return false;
+    }
+
+     // **2️⃣ Custom Pattern Validation (if provided)**
+     if (columnPattern && !columnPattern.test(column.name)) {
+        showCustomAlert(`
+            Not Match with the app pattern! ex. id, user_id, name, email, username, user_name, user_email etc.`);
         return false;
     }
 
@@ -233,7 +243,12 @@ function isValidInput(columns) {
 }
 
 function formatModelName(modelName) {
-    return modelName.charAt(0).toUpperCase() + modelName.slice(1);
+    return modelName
+        .trim()
+        .toLowerCase()
+        .split(' ') // Split by space
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1)) // Capitalize each word
+        .join(' '); // Join words back
 }
 
 // Function to sanitize input to prevent XSS
