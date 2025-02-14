@@ -429,14 +429,14 @@ $(document).ready(function () {
     });
   
     // Remove the selected column
-    $(document).on("click", ".remove-btn-column", function (event) {
+    $(document).on("click", "#columnsList .remove-btn-column", function (event) {
         event.stopPropagation();
         const columnIndex = $(this).closest(".list-group-item-column").data("index");
     
         if (columnIndex !== undefined) {
             columns.splice(columnIndex, 1);
             selectedColumnIndex = columns.length > 0 ? 0 : null;
-            updateSidebar();
+            updateSidebar(); // Update the sidebar after removing an item
             columns.length > 0 ? loadColumnDetails() : $("#columnDetail").hide();
     
             showToast("Column removed successfully!");

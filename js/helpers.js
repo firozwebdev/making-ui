@@ -126,10 +126,13 @@ function isValidInput(columns) {
             }
         }
         if (column.type === "email") {
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(column.default)) {
-                showCustomAlert("Invalid Default Value! Must be a valid email format!");
-                return false;
+            if(column.default) {
+                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(column.default)) {
+                    showCustomAlert("Invalid Default Value! Must be a valid email format!");
+                    return false;
+                } 
             }
+           
         }
     }
 
