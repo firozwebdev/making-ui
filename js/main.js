@@ -13,7 +13,7 @@ $(document).ready(function () {
         }
         // check column count if it is less than 2, then show the error message
         if (columns.length < 2) {
-            showCustomAlert("At least two columns are required!");
+            showCustomAlert("At least two columns are required to generate code!");
             return;
         }
 
