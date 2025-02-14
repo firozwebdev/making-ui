@@ -9,7 +9,19 @@ function isValidInput(columns) {
     
 
     // Reserved keywords & unsafe patterns (for column names)
-    const reservedKeywords = ["select", "insert", "update", "delete", "drop", "alter", "create", "truncate", "script"];
+    const reservedKeywords = [
+        // SQL Keywords
+        "select", "insert", "update", "delete", "drop", "alter", "create", "truncate", "script",
+        
+        // JavaScript Reserved Keywords
+        "abstract", "arguments", "await", "boolean", "break", "byte", "case", "catch", "char", "class",
+        "const", "continue", "debugger", "default", "delete", "do", "double", "else", "enum", "eval",
+        "export", "extends", "false", "final", "finally", "float", "for", "function", "goto", "if",
+        "implements", "import", "in", "instanceof", "int", "interface", "let", "long", "native", "new",
+        "null", "package", "private", "protected", "public", "return", "short", "static", "super",
+        "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof",
+        "var", "void", "volatile", "while", "with", "yield"
+    ];
     const unsafePattern = /[^a-zA-Z0-9_]/g; // Only allow letters, numbers, and underscores (_)
     const sqlInjectionPattern = /(union|select|insert|update|delete|drop|alter|create|truncate|exec|execute|--|;)/gi;
     const scriptTagPattern = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
