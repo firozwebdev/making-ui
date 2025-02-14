@@ -8,7 +8,7 @@ $(document).ready(function () {
         relationships = window.relationships;
         
         if (!tableName) {
-            showCustomAlert("Please set the Table/Model name first in the sidebar!");
+            showCustomAlert("Please set the Model name first in the sidebar!");
             return;
         }
         // check column count if it is less than 2, then show the error message

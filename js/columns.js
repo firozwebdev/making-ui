@@ -338,7 +338,7 @@ $(document).ready(function () {
         if(!isValidTableName($("#tableName").val().trim())) return;
         tableName =  $("#tableName").val().trim();
         if (!tableName) {
-            showCustomAlert("Please set the Table/Model name first in the sidebar!");
+            showCustomAlert("Please set the Model name first in the sidebar!");
             return;
         }
         $("h5 span.tableModelName").text(tableName);

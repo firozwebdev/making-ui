@@ -1,7 +1,7 @@
 
 function isValidTableName(tableName, customPattern = null) {
     if (typeof tableName !== "string" || tableName.trim() === "") {
-        showCustomAlert("Invalid table name!");
+        showCustomAlert("Invalid Model Name!");
         return false;
     }
 
@@ -23,8 +23,8 @@ function isValidTableName(tableName, customPattern = null) {
     const unsafePattern = /[^a-zA-Z ]/g; // Allows only letters (a-z, A-Z) and spaces
     const sqlInjectionPattern = /(union|select|insert|update|delete|drop|alter|create|truncate|exec|execute|--|;)/gi;
     const scriptTagPattern = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
-    const modelPattern =  /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/;
-    const tablePattern = /^[a-z]+(_[a-z]+)*$/;
+    const modelPattern =  /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/; // only working with Model not Table
+    //const tablePattern = /^[a-z]+(_[a-z]+)*$/; 
 
 
     function sanitizeInput(value) {
@@ -40,19 +40,19 @@ function isValidTableName(tableName, customPattern = null) {
     tableName = sanitizeInput(tableName);
 
     if (!tableName || tableName.length < 2) {
-        showCustomAlert("Table name must be at least 2 characters long!");
+        showCustomAlert("Model name must be at least 2 characters long!");
         return false;
     }
     if (reservedKeywords.includes(tableName.toLowerCase())) {
-        showCustomAlert(`"${tableName}" is a reserved keyword and cannot be used as a table name!`);
+        showCustomAlert(`"${tableName}" is a reserved keyword and cannot be used as a Model name!`);
         return false;
     }
     if (unsafePattern.test(tableName)) {
-        showCustomAlert("Invalid table name! Only these characters (a-z, A-Z, space) are allowed!");
+        showCustomAlert("Invalid Model Name! Only these characters (a-z, A-Z, space) are allowed!");
         return false;
     }
     if (sqlInjectionPattern.test(tableName)) {
-        showCustomAlert("Possible SQL injection detected! Invalid table name!");
+        showCustomAlert("Possible SQL injection detected! Invalid Model Name!");
         return false;
     }
 
