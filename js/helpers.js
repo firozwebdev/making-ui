@@ -22,7 +22,9 @@ function isValidInput(columns) {
         "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof",
         "var", "void", "volatile", "while", "with", "yield"
     ];
-    const unsafePattern = /[^a-zA-Z0-9_]/g; // Only allow letters, numbers, and underscores (_)
+   // const unsafePattern = /[^a-zA-Z0-9_]/g; // Only allow letters, numbers, and underscores (_)
+    const unsafePattern = /[^a-zA-Z0-9_ ]/g; // Allows letters, numbers, underscores, and spaces
+
     const sqlInjectionPattern = /(union|select|insert|update|delete|drop|alter|create|truncate|exec|execute|--|;)/gi;
     const scriptTagPattern = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
 
