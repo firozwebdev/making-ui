@@ -1,7 +1,9 @@
 $(document).ready(function () {
     $('#generateBtn').click(function () {
         // check table name if it is empty, then show the error message
-        tableName = window.tableName;
+        if(!isValidTableName($("#tableName").val().trim())) return;
+        tableName =  $("#tableName").val().trim();
+       
         columns = window.columns;
         relationships = window.relationships;
         
@@ -21,6 +23,12 @@ $(document).ready(function () {
                 return;
             }
             if (!isValidInput(columns)) {
+                return;
+            }
+        }
+
+        if(relationships.length > 0){
+           if(!validateRelatedModels(relationships)){
                 return;
             }
         }

@@ -37,6 +37,7 @@ $(document).ready(function () {
   
   
   function checkTableName() {
+    //if(!isValidTableName($("#tableName").val().trim())) return;
       tableName = $("#tableName").val().trim(); // Get the table name
       if (!tableName) {
           showCustomAlert("Please set the Table/Model name first in the sidebar.");
@@ -334,7 +335,8 @@ $(document).ready(function () {
   
     // Set the table/model name
     $("#setTableNameBtn").click(function () {
-        tableName = $("#tableName").val();
+        if(!isValidTableName($("#tableName").val().trim())) return;
+        tableName =  $("#tableName").val().trim();
         if (!tableName) {
             showCustomAlert("Please set the Table/Model name first in the sidebar!");
             return;

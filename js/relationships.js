@@ -21,6 +21,7 @@ $(document).ready(function () {
     });
   // Function to validate table name and columns
   function validateTableAndColumns() {
+    //if(!isValidTableName($("#tableName").val().trim())) return;
     tableName = $("#tableName").val().trim(); // Get updated table name
     let columnCount = $("#columnsList li").length; // Count existing columns
 
@@ -52,9 +53,11 @@ $(document).ready(function () {
 
   // Update Relationship Sidebar
   function updateRelationshipSidebar() {
+    //if(!isValidTableName($("#tableName").val().trim())) return;
+    tableName =  $("#tableName").val().trim();
     if (!tableName) {
-      showCustomAlert("Please set the Table/Model name first in the sidebar!");
-      return;
+        showCustomAlert("Please set the Table/Model name first in the sidebar!");
+        return;
     }
 
     $("#relationshipsList").empty();
@@ -93,6 +96,8 @@ $(document).ready(function () {
     if (selectedRelationshipIndex === null) return false;
 
     const relationship = relationships[selectedRelationshipIndex];
+     // Convert to lowercase for comparison
+    //if(!isValidTableName($("#relatedModel").val().trim())) return;
     const relatedModel = $("#relatedModel").val().trim().toLowerCase();  // Convert to lowercase for comparison
     const relationshipType = $("#relationshipType").val();
     let isValid = true;
@@ -138,8 +143,10 @@ $(document).ready(function () {
 
   // Add Relationship
   $("#addRelationshipBtn").click(function (e) {
-    if (!validateTableAndColumns()) {
-        showCustomAlert("Please set the Table/Model name first!");
+    //if(!isValidTableName($("#tableName").val().trim())) return;
+    tableName =  $("#tableName").val().trim();
+    if (!tableName) {
+        showCustomAlert("Please set the Table/Model name first in the sidebar!");
         return;
     }
 
@@ -149,6 +156,12 @@ $(document).ready(function () {
       if (!isDefaultValueConsistentOrNotInColumn(columns)) {
           //showCustomAlert("Please fix  default value!");
           return;
+      }
+    }
+
+    if(relationships.length > 0){
+      if(!validateRelatedModels(relationships)){
+        return;
       }
     }
     
@@ -186,6 +199,8 @@ $(document).ready(function () {
 
   // Set Table/Model Name
   $("#setTableNameBtn").click(function () {
+    //if(!isValidTableName($("#tableName").val().trim())) return;
+    tableName =  $("#tableName").val().trim();
     $("h5 span.tableModelName").text(tableName);
     
     // if table name is set, and columns are greater than 1, enable the add relationship button
@@ -242,6 +257,7 @@ $(document).ready(function () {
 
   // Toggle "Set Table Name" Button
   function toggleSetTableNameBtn() {
+    //if(!isValidTableName($("#tableName").val().trim())) return;
     $("#setTableNameBtn").prop("disabled", $("#tableName").val().trim() === "");
   }
 

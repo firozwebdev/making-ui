@@ -1,3 +1,69 @@
+
+function isValidTableName(tableName) {
+    if (typeof tableName !== "string" || tableName.trim() === "") {
+        showCustomAlert("Invalid table name!");
+        return false;
+    }
+
+    // Reserved keywords & unsafe patterns (for table names)
+    const reservedKeywords = [
+        // SQL Keywords
+        "select", "insert", "update", "delete", "drop", "alter", "create", "truncate", "script",
+
+        // JavaScript Reserved Keywords
+        "abstract", "arguments", "await", "boolean", "break", "byte", "case", "catch", "char", "class",
+        "const", "continue", "debugger", "default", "delete", "do", "double", "else", "enum", "eval",
+        "export", "extends", "false", "final", "finally", "float", "for", "function", "goto", "if",
+        "implements", "import", "in", "instanceof", "int", "interface", "let", "long", "native", "new",
+        "null", "package", "private", "protected", "public", "return", "short", "static", "super",
+        "switch", "synchronized", "this", "throw", "throws", "transient", "true", "try", "typeof",
+        "var", "void", "volatile", "while", "with", "yield"
+    ];
+
+    const unsafePattern = /[^a-zA-Z_ ]/g; // Allows only letters (a-z, A-Z) and spaces
+
+    const sqlInjectionPattern = /(union|select|insert|update|delete|drop|alter|create|truncate|exec|execute|--|;)/gi;
+    const scriptTagPattern = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
+
+    function sanitizeInput(value) {
+        if (typeof value === "string") {
+            value = value.trim();
+            value = value.replace(scriptTagPattern, ""); // Remove <script> tags
+            value = value.replace(/['";`]/g, ""); // Remove common SQL/JS injection characters
+        }
+        return value;
+    }
+
+    // **1️⃣ Table Name Validation (Prevents SQL Injection & XSS)**
+    tableName = sanitizeInput(tableName);
+
+    if (!tableName || tableName.length < 2) {
+        showCustomAlert("Table name must be at least 2 characters long!");
+        return false;
+    }
+    if (reservedKeywords.includes(tableName.toLowerCase())) {
+        showCustomAlert(`"${tableName}" is a reserved keyword and cannot be used as a table name!`);
+        return false;
+    }
+    if (unsafePattern.test(tableName)) {
+        showCustomAlert("Invalid table name! Only these characters (a-z, A-Z, _, space) are allowed!");
+        return false;
+    }
+    if (sqlInjectionPattern.test(tableName)) {
+        showCustomAlert("Possible SQL injection detected! Invalid table name!");
+        return false;
+    }
+
+    return true; // ✅ Pass if all validations succeed
+}
+
+function validateRelatedModels(relationships) {
+    // Use `some` to break out of the loop on the first failure
+    return !relationships.some(rel => !isValidTableName(rel.relatedModel));
+}
+
+
+
 function isValidInput(columns) {
     if (!Array.isArray(columns) || columns.length === 0) {
         showCustomAlert("Invalid column data!");
