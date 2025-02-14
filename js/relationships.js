@@ -98,12 +98,12 @@ $(document).ready(function () {
     const relationship = relationships[selectedRelationshipIndex];
      // Convert to lowercase for comparison
     //if(!isValidTableName($("#relatedModel").val().trim())) return;
-    const relatedModel = $("#relatedModel").val().trim().toLowerCase();  // Convert to lowercase for comparison
+    const relatedModel = formatModelName($("#relatedModel").val().trim().toLowerCase());  // Convert to lowercase for comparison
     const relationshipType = $("#relationshipType").val();
     let isValid = true;
 
     // Check if the related model already exists (case-insensitive) excluding the current relationship
-    if (relationships.some((rel, index) => rel.relatedModel.toLowerCase() === relatedModel && index !== selectedRelationshipIndex)) {
+    if (relationships.some((rel, index) => formatModelName(rel.relatedModel?.toLowerCase()) === relatedModel && index !== selectedRelationshipIndex)) {
         showCustomAlert("Related model name already exists. Please choose a unique model!");
         $("#relatedModel").addClass("is-invalid"); // Highlight the field in red
         isValid = false;

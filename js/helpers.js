@@ -1,5 +1,5 @@
 
-function isValidTableName(tableName) {
+function isValidTableName(tableName, customPattern = null) {
     if (typeof tableName !== "string" || tableName.trim() === "") {
         showCustomAlert("Invalid table name!");
         return false;
@@ -21,9 +21,11 @@ function isValidTableName(tableName) {
     ];
 
     const unsafePattern = /[^a-zA-Z_ ]/g; // Allows only letters (a-z, A-Z) and spaces
-
     const sqlInjectionPattern = /(union|select|insert|update|delete|drop|alter|create|truncate|exec|execute|--|;)/gi;
     const scriptTagPattern = /<script[\s\S]*?>[\s\S]*?<\/script>/gi;
+    const modelPattern =  /^[A-Z][a-z]*(\s[A-Z][a-z]*)*$/;
+    const tablePattern = /^[a-z]+(_[a-z]+)*$/;
+
 
     function sanitizeInput(value) {
         if (typeof value === "string") {
@@ -54,8 +56,16 @@ function isValidTableName(tableName) {
         return false;
     }
 
+    // **2️⃣ Custom Pattern Validation (if provided)**
+    if (modelPattern && !modelPattern.test(tableName)) {
+        showCustomAlert(`
+            Not Match with the app pattern! ex. User, Category, Product Detail, Customer Detail  etc.`);
+        return false;
+    }
+
     return true; // ✅ Pass if all validations succeed
 }
+
 
 function validateRelatedModels(relationships) {
     // Use `some` to break out of the loop on the first failure
@@ -222,7 +232,9 @@ function isValidInput(columns) {
     return true; // ✅ Pass if all validations succeed
 }
 
-
+function formatModelName(modelName) {
+    return modelName.charAt(0).toUpperCase() + modelName.slice(1);
+}
 
 // Function to sanitize input to prevent XSS
 function sanitizeInput(input) {
