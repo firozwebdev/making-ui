@@ -50,27 +50,28 @@ $(document).ready(function () {
   
     // Function to update the sidebar
     function updateSidebar() {
+        if (!checkTableName()) return;  // Only proceed if the table name is set
         $("#columnsList").empty();
-    
-        if (columns.length === 0) {
-            $("#columnDetail").hide(); // Hide details if no columns
-            return;
-        }
-    
         columns.forEach((col, index) => {
             $("#columnsList").append(`
                 <li class="list-group-item-column ${selectedColumnIndex === index ? "active" : ""}" data-index="${index}">
                     ${col.name || "Untitled Column"}
-                    <button class="remove-btn-column btn btn-danger btn-sm float-end">
+                    <button class="remove-btn-column btn btn-danger btn-sm float-end" data-index="${index}">
                         <i class="bi bi-x-circle"></i>
                     </button>
                 </li>
             `);
         });
-    
-        setTimeout(() => {
-            $(`li.list-group-item-column[data-index="${selectedColumnIndex}"]`).addClass("active");
-        }, 10);
+  
+        // Reattach event listeners after updating the list
+        $(".list-group-item-column").off("click").on("click", function () {
+            saveColumnData();
+            $(".list-group-item-column").removeClass("active");
+            $(".list-group-item-relationship").removeClass("active");
+            $(this).addClass("active");
+            selectedColumnIndex = $(this).data("index");
+            loadColumnDetails();
+        });
     }
   
     // Function to load column details in the right panel
