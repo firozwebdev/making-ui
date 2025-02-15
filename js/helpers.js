@@ -59,9 +59,11 @@ function isValidTableName(tableName, customPattern = null) {
     // **2️⃣ Custom Pattern Validation (if provided)**
     if (modelPattern && !modelPattern.test(tableName)) {
         showCustomAlert(`
-            Not Match with the app pattern! ex. User, Category, Product Detail, Customer Detail  etc.`);
+            Invalid model name! Please use the correct format. 
+            Example: User, Category, Product Detail, Customer Detail, etc.`);
         return false;
     }
+    
 
     return true; // ✅ Pass if all validations succeed
 }
@@ -136,12 +138,14 @@ function isValidInput(columns) {
         return false;
     }
 
-     // **2️⃣ Custom Pattern Validation (if provided)**
-     if (columnPattern && !columnPattern.test(column.name)) {
+    // **2️⃣ Custom Pattern Validation (if provided)**
+    if (columnPattern && !columnPattern.test(column.name)) {
         showCustomAlert(`
-            Not Match with the app pattern! ex. id, user_id, name, email, username, user_name, user_email etc.`);
+            Invalid column name! Please use the correct format. 
+            Example: id, user_id, name, email, username, user_name, user_email, etc.`);
         return false;
     }
+    
 
    
 
