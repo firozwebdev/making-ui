@@ -235,16 +235,27 @@ body {
 #generateBtn {
   font-size: 16px;
   font-weight: bold;
-  padding: 12px;
-  background: #28a745;
+  padding: 12px 20px;
+  color: #fff;
+  background: linear-gradient(45deg, #520a0a, #ff5733); /* Red gradient */
   border: none;
   border-radius: 10px;
-  transition: 0.3s;
+  transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+  box-shadow: 0 4px 10px rgba(211, 47, 47, 0.3);
 }
 
 #generateBtn:hover {
-  background: #218838;
+  background: linear-gradient(45deg, rgb(107, 7, 7), #ff3d00); /* Darker red on hover */
+  transform: scale(1.05);
+  box-shadow: 0 6px 12px rgba(183, 28, 28, 0.4);
 }
+
+#generateBtn:active {
+  background: linear-gradient(45deg, #9a0007, #d84315); /* Deeper red when clicked */
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px rgba(154, 0, 7, 0.5);
+}
+
 
 /* Responsive Design */
 @media (max-width: 768px) {

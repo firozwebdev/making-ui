@@ -110,7 +110,7 @@ $(document).ready(function () {
             progressText.innerText = "Fake CRUD App Generated!";
             stepLabels.innerText = "Process Complete!";
             downloadBtn.style.display = "inline-block"; // Show the download button
-        }, 6000); // Fake completion after 6 seconds
+        }, 10000); // Fake completion after 10 seconds
 
 
         
