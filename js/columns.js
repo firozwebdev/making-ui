@@ -40,7 +40,7 @@ $(document).ready(function () {
     //if(!isValidTableName($("#tableName").val().trim())) return;
       tableName = $("#tableName").val().trim(); // Get the table name
       if (!tableName) {
-          showCustomAlert("Please set the Table/Model name first in the sidebar.");
+          showCustomAlert("Please set the Model name first in the sidebar.");
           disableActions();
           return false;
       }
@@ -279,7 +279,7 @@ $(document).ready(function () {
      // Add a new column when the "Add Column" button is clicked
       $("#addColumnBtn").click(function (e) {
           if (!checkTableName()) {
-              showCustomAlert("Please set the Table/Model name first!");
+              showCustomAlert("Please set the Model name first!");
               return; 
           }
           relationships = window.relationships;
