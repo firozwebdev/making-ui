@@ -101,7 +101,24 @@ $(document).ready(function () {
         }`;
 
         console.log("Output: ", output);
+
+       // Show Progress Modal & Start Animation
+       $('#progressModal').modal('show');
+        startProgress();  
+
+        setTimeout(() => {
+            progressText.innerText = "Fake CRUD App Generated!";
+            stepLabels.innerText = "Process Complete!";
+            downloadBtn.style.display = "inline-block"; // Show the download button
+        }, 6000); // Fake completion after 6 seconds
+
+
+        
     });
+
+  
+
+   
 });
 
 

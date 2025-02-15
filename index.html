@@ -6,13 +6,14 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
+    <link rel="stylesheet" href="css/progressbar.css" />
     <link rel="stylesheet" href="css/style.css" />
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.1/dist/purify.min.js"></script>
-    
+   
   </head>
   <body>
     <!-- Background Decorative Elements -->
@@ -125,7 +126,7 @@
     </div>
     
     
-    <!-- Modal for Dynamic Custom Alert -->
+    <!--Progress Modal for Dynamic Custom Alert -->
     <div class="modal fade" id="customAlertModal" tabindex="-1" aria-labelledby="customAlertModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -143,9 +144,39 @@
       </div>
     </div>
 
+    
+
+   <!-- Modal Structure -->
+   <div
+     class="modal fade"
+     id="progressModal"
+     tabindex="-1"
+     aria-labelledby="progressModalLabel"
+     aria-hidden="true"
+   >
+     <div class="modal-dialog">
+       <div class="modal-content">
+         <div class="modal-header">
+           <h5 class="modal-title" id="progressModalLabel">Progress Bar</h5>
+           
+         </div>
+         <div class="modal-body">
+           <div class="equalizer-container" id="equalizer">
+             <!-- Bars will be added dynamically -->
+           </div>
+           <p id="progress-text">Processing...</p>
+           <p id="step-labels" class="step-label">Step 1: Generating Models</p>
+         </div>
+        
+       </div>
+     </div>
+   </div>
+
+
 
     <script src="js/toasterConfig.js"></script>
     <script src="js/alertModal.js"></script>
+    <script src="js/progressbar.js"></script>
     <script src="js/helpers.js"></script>
     <script src="js/columns.js"></script>
     <script src="js/relationships.js"></script>
